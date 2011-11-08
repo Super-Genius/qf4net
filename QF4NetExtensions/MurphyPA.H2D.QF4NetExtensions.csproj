@@ -1,0 +1,296 @@
+﻿<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DC27C78F-0C9A-4B22-B51F-A2613EB18D70}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>StepByStep.Modelling.QF4NetExtensions</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>qf4net</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>0.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\..\..\..\bin\lib\qf4net\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\..\..\..\..\bin\lib\qf4net\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LoggingUtil">
+      <Name>LoggingUtil</Name>
+      <HintPath>..\..\..\..\..\..\bin\lib\common\LoggingUtil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="qf4net">
+      <Name>qf4net</Name>
+      <HintPath>..\..\..\..\..\..\bin\lib\qf4net\qf4net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DispatchExceptionFailureEventArgs.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EventManagerDispatchCommandExceptionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EventManagerDispatchExceptionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="HsmEventHolder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IFieldInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ILQHsm.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ILQHsmAdmin.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ILQHsmDictionary.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ILQHsmMemento.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQEventEditContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQEventEditor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQEventManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQEventManagerEvents.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQEventManagerRunner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQHsmEvents.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQHsmExecutionContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQHsmExecutionContextAdmin.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQHsmLifeCycleManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQHsmLifeCycleManagerEvents.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQMultiPort.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQPort.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQSimpleCommand.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQStateChangeListener.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQSupportsSubMachines.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IQTimer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ISerialisationContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IStateMethodInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LQHsm.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LQHsmHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LQHsmMemento.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LQHsmWithSubMachines.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MementoFieldInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MementoStateMethodInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ModelInformation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ModelInformationAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QEventDefaultEditContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QEventManagerBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QEventManagerEventsBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QGUITimerEventManagerRunner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmExecutionContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleChangeHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleChangeType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerEventProxy.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerEventsBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerWithHsmEventsBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerWithHsmEventsBaseAndEventManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerWithHsmEventsBaseAndEventManagerBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QHsmLifeCycleManagerWithHsmEventsBaseAndMultipleEventManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QMultiHsmEventManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QMultiPort.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QPort.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QSingleHsmEventManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QStateChangeListenerBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QSystemTimer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="QThreadedEventManagerRunner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SerialisationContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SimpleTransactionalCmd.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StateCommandAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StateMethodAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TransitionEventAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

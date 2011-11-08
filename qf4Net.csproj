@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>qf4Net</RootNamespace>
+    <AssemblyName>qf4Net</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="HierarchicalStateMachine\src\EventQueueFactory.cs" />
+    <Compile Include="HierarchicalStateMachine\src\IQActive.cs" />
+    <Compile Include="HierarchicalStateMachine\src\IQEvent.cs" />
+    <Compile Include="HierarchicalStateMachine\src\IQEventQueue.cs" />
+    <Compile Include="HierarchicalStateMachine\src\IQF.cs" />
+    <Compile Include="HierarchicalStateMachine\src\IQFTransaction.cs" />
+    <Compile Include="HierarchicalStateMachine\src\IQHsm.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QActive.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QEvent.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QEventQueue.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QF.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QHsm.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QHsmWithQueue.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QSignals.cs" />
+    <Compile Include="HierarchicalStateMachine\src\QTimer.cs" />
+    <Compile Include="HierarchicalStateMachine\src\ThreadFactory.cs" />
+    <Compile Include="LoggingUtil\ConsoleLogger.cs" />
+    <Compile Include="LoggingUtil\ConsoleLogManager.cs" />
+    <Compile Include="LoggingUtil\ILogger.cs" />
+    <Compile Include="LoggingUtil\ILogManager.cs" />
+    <Compile Include="LoggingUtil\LoggingUserBase.cs" />
+    <Compile Include="LoggingUtil\LogManager.cs" />
+    <Compile Include="QF4NetExtensions\DispatchExceptionFailureEventArgs.cs" />
+    <Compile Include="QF4NetExtensions\EventManagerDispatchCommandExceptionHandler.cs" />
+    <Compile Include="QF4NetExtensions\EventManagerDispatchExceptionHandler.cs" />
+    <Compile Include="QF4NetExtensions\HsmEventHolder.cs" />
+    <Compile Include="QF4NetExtensions\IFieldInfo.cs" />
+    <Compile Include="QF4NetExtensions\ILQHsm.cs" />
+    <Compile Include="QF4NetExtensions\ILQHsmAdmin.cs" />
+    <Compile Include="QF4NetExtensions\ILQHsmDictionary.cs" />
+    <Compile Include="QF4NetExtensions\ILQHsmMemento.cs" />
+    <Compile Include="QF4NetExtensions\IQEventEditContext.cs" />
+    <Compile Include="QF4NetExtensions\IQEventEditor.cs" />
+    <Compile Include="QF4NetExtensions\IQEventManager.cs" />
+    <Compile Include="QF4NetExtensions\IQEventManagerEvents.cs" />
+    <Compile Include="QF4NetExtensions\IQEventManagerRunner.cs" />
+    <Compile Include="QF4NetExtensions\IQHsmEvents.cs" />
+    <Compile Include="QF4NetExtensions\IQHsmExecutionContext.cs" />
+    <Compile Include="QF4NetExtensions\IQHsmExecutionContextAdmin.cs" />
+    <Compile Include="QF4NetExtensions\IQHsmLifeCycleManager.cs" />
+    <Compile Include="QF4NetExtensions\IQHsmLifeCycleManagerEvents.cs" />
+    <Compile Include="QF4NetExtensions\IQMultiPort.cs" />
+    <Compile Include="QF4NetExtensions\IQPort.cs" />
+    <Compile Include="QF4NetExtensions\IQSimpleCommand.cs" />
+    <Compile Include="QF4NetExtensions\IQStateChangeListener.cs" />
+    <Compile Include="QF4NetExtensions\IQSupportsSubMachines.cs" />
+    <Compile Include="QF4NetExtensions\IQTimer.cs" />
+    <Compile Include="QF4NetExtensions\ISerialisationContext.cs" />
+    <Compile Include="QF4NetExtensions\IStateMethodInfo.cs" />
+    <Compile Include="QF4NetExtensions\LQHsm.cs" />
+    <Compile Include="QF4NetExtensions\LQHsmHelper.cs" />
+    <Compile Include="QF4NetExtensions\LQHsmMemento.cs" />
+    <Compile Include="QF4NetExtensions\LQHsmWithSubMachines.cs" />
+    <Compile Include="QF4NetExtensions\MementoFieldInfo.cs" />
+    <Compile Include="QF4NetExtensions\MementoStateMethodInfo.cs" />
+    <Compile Include="QF4NetExtensions\ModelInformation.cs" />
+    <Compile Include="QF4NetExtensions\ModelInformationAttribute.cs" />
+    <Compile Include="QF4NetExtensions\QEventManagerBase.cs" />
+    <Compile Include="QF4NetExtensions\QEventManagerEventsBase.cs" />
+    <Compile Include="QF4NetExtensions\QHsmExecutionContext.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleChangeHandler.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleChangeType.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerBase.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerEventProxy.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerEventsBase.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBase.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBaseAndEventManager.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBaseAndEventManagerBase.cs" />
+    <Compile Include="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBaseAndMultipleEventManager.cs" />
+    <Compile Include="QF4NetExtensions\QMultiHsmEventManager.cs" />
+    <Compile Include="QF4NetExtensions\QMultiPort.cs" />
+    <Compile Include="QF4NetExtensions\QPort.cs" />
+    <Compile Include="QF4NetExtensions\QSingleHsmEventManager.cs" />
+    <Compile Include="QF4NetExtensions\QStateChangeListenerBase.cs" />
+    <Compile Include="QF4NetExtensions\QSystemTimer.cs" />
+    <Compile Include="QF4NetExtensions\QThreadedEventManagerRunner.cs" />
+    <Compile Include="QF4NetExtensions\SerialisationContext.cs" />
+    <Compile Include="QF4NetExtensions\SimpleTransactionalCmd.cs" />
+    <Compile Include="QF4NetExtensions\StateCommandAttribute.cs" />
+    <Compile Include="QF4NetExtensions\StateMethodAttribute.cs" />
+    <Compile Include="QF4NetExtensions\TransitionEventAttribute.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

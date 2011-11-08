@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qf4Net", "qf4Net.csproj", "{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = qf4Net.csproj
+	EndGlobalSection
+EndGlobal
