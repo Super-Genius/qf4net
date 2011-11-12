@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>qf4Net</RootNamespace>
     <AssemblyName>qf4Net</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -115,6 +114,12 @@
     <Compile Include="QF4NetExtensions\StateCommandAttribute.cs" />
     <Compile Include="QF4NetExtensions\StateMethodAttribute.cs" />
     <Compile Include="QF4NetExtensions\TransitionEventAttribute.cs" />
+    <Compile Include="GQHSM\GQHSMState.cs" />
+    <Compile Include="GQHSM\GHQSMXMLReader.cs" />
+    <Compile Include="GQHSM\GHQSMXMLDataAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="GQHSM\" />
+  </ItemGroup>
 </Project>
