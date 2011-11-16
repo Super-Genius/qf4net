@@ -13,16 +13,16 @@ namespace qf4net
         string GroupId { get; set; }
         string ModelVersion { get; set; }
         string ModelGuid { get; set; }
-		MethodInfo CurrentStateMethod { get; set; }
+		QState CurrentState { get; set; }
 		void ClearHistoryStates ();
-		void AddHistoryState (string name, MethodInfo state);
+		void AddHistoryState (string name, QState state);
 		void ClearFields ();
 		void AddField (string name, object value, Type type); // add more type specific fields in future.
 
-		IStateMethodInfo GetHistoryStateFor (string name);
+		IStateInfo GetHistoryStateFor (string name);
 		IFieldInfo GetFieldFor (string name);
 
-		IStateMethodInfo[] GetHistoryStates ();
+		IStateInfo[] GetHistoryStates ();
 		IFieldInfo[] GetFields ();
 	}
 }

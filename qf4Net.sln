@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qf4Net", "qf4Net.csproj", "{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestXMLLoader", "TestXMLLoader\TestXMLLoader.csproj", "{60C8BD14-B90B-475A-933E-6FB594A3FFE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,8 +15,15 @@ Global
 		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = qf4Net.csproj
+		StartupItem = TestXMLLoader\TestXMLLoader.csproj
 	EndGlobalSection
 EndGlobal

@@ -73,24 +73,24 @@ namespace qf4net
         #region event DispatchExceptionEvent
         public event DispatchExceptionHandler DispatchException;
 
-        protected virtual bool OnDispatchException (IQHsm hsm, Exception ex, MethodInfo stateMethod, IQEvent ev)
+        protected virtual bool OnDispatchException (IQHsm hsm, Exception ex, QState state, IQEvent ev)
         {
             return true;
         }
 
-        protected void RaiseDispatchException (DispatchExceptionHandler handler, IQHsm hsm, Exception ex, MethodInfo stateMethod, IQEvent ev)
+        protected void RaiseDispatchException (DispatchExceptionHandler handler, IQHsm hsm, Exception ex, QState state, IQEvent ev)
         {
             if (handler != null)
             {
-                handler (ex, hsm, stateMethod, ev);
+                handler (ex, hsm, state, ev);
             }
         }
 
-        protected virtual void DoDispatchException (IQHsm hsm, Exception ex, MethodInfo stateMethod, IQEvent ev)
+        protected virtual void DoDispatchException (IQHsm hsm, Exception ex, QState state, IQEvent ev)
         {
-            if (OnDispatchException (hsm, ex, stateMethod, ev))
+            if (OnDispatchException (hsm, ex, state, ev))
             {
-                RaiseDispatchException (DispatchException, hsm, ex, stateMethod, ev);
+                RaiseDispatchException (DispatchException, hsm, ex, state, ev);
             }			
         }
         #endregion
@@ -98,24 +98,24 @@ namespace qf4net
         #region event UnhandledTransition
         public event DispatchUnhandledTransitionHandler UnhandledTransition;
 
-        protected virtual bool OnUnhandledTransition (IQHsm hsm, MethodInfo stateMethod, IQEvent qEvent)
+        protected virtual bool OnUnhandledTransition (IQHsm hsm, QState state, IQEvent qEvent)
         {
             return true;
         }
 
-        protected void RaiseUnhandledTransition (DispatchUnhandledTransitionHandler handler, IQHsm hsm, MethodInfo stateMethod, IQEvent qEvent)
+        protected void RaiseUnhandledTransition (DispatchUnhandledTransitionHandler handler, IQHsm hsm, QState state, IQEvent qEvent)
         {
             if (handler != null)
             {
-                handler (hsm, stateMethod, qEvent);
+                handler (hsm, state, qEvent);
             }
         }
 
-        protected void DoUnhandledTransition (IQHsm hsm, MethodInfo stateMethod, IQEvent qEvent)
+        protected void DoUnhandledTransition (IQHsm hsm, QState state, IQEvent qEvent)
         {
-            if (OnUnhandledTransition (hsm, stateMethod, qEvent))
+            if (OnUnhandledTransition (hsm, state, qEvent))
             {
-                RaiseUnhandledTransition (UnhandledTransition, hsm, stateMethod, qEvent);
+                RaiseUnhandledTransition (UnhandledTransition, hsm, state, qEvent);
             }
         }
         #endregion
@@ -202,14 +202,14 @@ namespace qf4net
             DoStateChange (sender, e);
         }
 
-        private void events_UnhandledTransition(IQHsm hsm, MethodInfo stateMethod, IQEvent ev)
+        private void events_UnhandledTransition(IQHsm hsm, QState state, IQEvent ev)
         {
-            DoUnhandledTransition (hsm, stateMethod, ev);
+            DoUnhandledTransition (hsm, state, ev);
         }
 
-        private void events_DispatchException(Exception ex, IQHsm hsm, MethodInfo stateMethod, IQEvent ev)
+        private void events_DispatchException(Exception ex, IQHsm hsm, QState state, IQEvent ev)
         {
-            DoDispatchException (hsm, ex, stateMethod, ev);
+            DoDispatchException (hsm, ex, state, ev);
 		}
 
 		private void eventManagerEvents_PolledEvent(IQEventManager eventManager, IQHsm hsm, IQEvent ev, PollContext pollContext)

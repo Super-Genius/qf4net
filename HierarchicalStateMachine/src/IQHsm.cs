@@ -45,13 +45,35 @@
 
 
 using System;
+using System.Reflection;
 
 namespace qf4net
 {
 	/// <summary>
 	/// Delegate that all state handlers must be a type of
 	/// </summary>
-	public delegate QState QState(IQEvent qEvent);
+    public delegate QState QStateDelegate(IQEvent qEvent);
+    public class QState
+    {
+        public QStateDelegate callerDelegate;
+        public object callerClass;
+        public string Name;
+
+        public QState(object sourceClass, QStateDelegate sourceDelegate, string sourceStateName)
+        {
+            callerDelegate = sourceDelegate;
+            callerClass = sourceClass;
+            Name = sourceStateName;
+        }
+
+        public MethodInfo Method
+        {
+            get
+            {
+                return callerDelegate.Method;
+            }
+        }
+    }
 
 	
 	/// <summary>
@@ -119,6 +141,6 @@ namespace qf4net
 	/// <summary>
 	/// DispatchException
 	/// </summary>
-	public delegate void DispatchExceptionHandler (Exception ex, IQHsm hsm, System.Reflection.MethodInfo stateMethod, IQEvent ev);
-	public delegate void DispatchUnhandledTransitionHandler (IQHsm hsm, System.Reflection.MethodInfo stateMethod, IQEvent ev);
+	public delegate void DispatchExceptionHandler (Exception ex, IQHsm hsm, QState state, IQEvent ev);
+	public delegate void DispatchUnhandledTransitionHandler (IQHsm hsm, QState state, IQEvent ev);
 }

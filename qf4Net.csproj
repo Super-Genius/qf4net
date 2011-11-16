@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,6 +9,12 @@
     <OutputType>Library</OutputType>
     <RootNamespace>qf4Net</RootNamespace>
     <AssemblyName>qf4Net</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,9 +36,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="GQHSM\GQHSM.cs" />
+    <Compile Include="GQHSM\GQHSMManager.cs" />
+    <Compile Include="GQHSM\GQHSMTransition.cs" />
+    <Compile Include="GQHSM\MultiMap.cs" />
     <Compile Include="HierarchicalStateMachine\src\EventQueueFactory.cs" />
     <Compile Include="HierarchicalStateMachine\src\IQActive.cs" />
     <Compile Include="HierarchicalStateMachine\src\IQEvent.cs" />
@@ -81,13 +92,13 @@
     <Compile Include="QF4NetExtensions\IQSupportsSubMachines.cs" />
     <Compile Include="QF4NetExtensions\IQTimer.cs" />
     <Compile Include="QF4NetExtensions\ISerialisationContext.cs" />
-    <Compile Include="QF4NetExtensions\IStateMethodInfo.cs" />
+    <Compile Include="QF4NetExtensions\IStateInfo.cs" />
     <Compile Include="QF4NetExtensions\LQHsm.cs" />
     <Compile Include="QF4NetExtensions\LQHsmHelper.cs" />
     <Compile Include="QF4NetExtensions\LQHsmMemento.cs" />
     <Compile Include="QF4NetExtensions\LQHsmWithSubMachines.cs" />
     <Compile Include="QF4NetExtensions\MementoFieldInfo.cs" />
-    <Compile Include="QF4NetExtensions\MementoStateMethodInfo.cs" />
+    <Compile Include="QF4NetExtensions\MementoStateInfo.cs" />
     <Compile Include="QF4NetExtensions\ModelInformation.cs" />
     <Compile Include="QF4NetExtensions\ModelInformationAttribute.cs" />
     <Compile Include="QF4NetExtensions\QEventManagerBase.cs" />
@@ -115,11 +126,7 @@
     <Compile Include="QF4NetExtensions\StateMethodAttribute.cs" />
     <Compile Include="QF4NetExtensions\TransitionEventAttribute.cs" />
     <Compile Include="GQHSM\GQHSMState.cs" />
-    <Compile Include="GQHSM\GHQSMXMLReader.cs" />
-    <Compile Include="GQHSM\GHQSMXMLDataAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="GQHSM\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

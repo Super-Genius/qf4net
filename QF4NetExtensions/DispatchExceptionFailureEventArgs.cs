@@ -8,11 +8,11 @@ namespace qf4net
 	[Serializable]
 	public class DispatchExceptionFailureEventArgs
 	{
-		public DispatchExceptionFailureEventArgs(Exception ex, IQHsm hsm, System.Reflection.MethodInfo stateMethod, IQEvent ev)
+		public DispatchExceptionFailureEventArgs(Exception ex, IQHsm hsm, QState state, IQEvent ev)
 		{
 			_Exception = ex;
 			_Hsm = hsm;
-			_StateMethod = stateMethod;
+			_State = state;
 			_OriginalEvent = ev;
 		}
 
@@ -22,8 +22,8 @@ namespace qf4net
 		IQHsm _Hsm;
 		public IQHsm Hsm { get { return _Hsm; } }
 
-		System.Reflection.MethodInfo _StateMethod;
-		public System.Reflection.MethodInfo StateMethod { get { return _StateMethod; } }
+		QState _State;
+		public QState state { get { return _State; } }
 
 		IQEvent _OriginalEvent;
 		public IQEvent OriginalEvent { get { return _OriginalEvent; } }

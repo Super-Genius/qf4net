@@ -64,16 +64,16 @@ namespace qf4net
             }
         }
 
-		MethodInfo _CurrentStateMethod;
-		public MethodInfo CurrentStateMethod
+		QState _CurrentState;
+		public QState CurrentState
 		{
 			get
 			{
-				return _CurrentStateMethod;
+				return _CurrentState;
 			}
 			set
 			{
-				_CurrentStateMethod = value;
+				_CurrentState = value;
 			}
 		}
 
@@ -111,10 +111,10 @@ namespace qf4net
             }
         }
 
-		public void AddHistoryState(string name, System.Reflection.MethodInfo state)
+		public void AddHistoryState(string name, QState state)
 		{
             SetupHistoryStatesContainer();
-			_HistoryStates.Add (name, new MementoStateMethodInfo (name, state));
+			_HistoryStates.Add (name, new MementoStateInfo (name, state));
 		}
 
 		Hashtable _Fields = null;
@@ -134,15 +134,15 @@ namespace qf4net
 			_Fields.Add (name, new MementoFieldInfo (name, value, type));
 		}
 
-		public IStateMethodInfo GetHistoryStateFor (string name)
+		public IStateInfo GetHistoryStateFor (string name)
 		{
 			if (_HistoryStates == null)
 			{
 				throw new NullReferenceException ("No History States are being held by this memento");
 			}
 
-			IStateMethodInfo methodInfo = _HistoryStates [name] as IStateMethodInfo;
-			return methodInfo;
+			IStateInfo stateInfo = _HistoryStates [name] as IStateInfo;
+			return stateInfo;
 		}
 
 		public IFieldInfo GetFieldFor (string name)
@@ -156,7 +156,7 @@ namespace qf4net
 			return fieldInfo;
 		}
 
-		public IStateMethodInfo[] GetHistoryStates ()
+		public IStateInfo[] GetHistoryStates ()
 		{
 			if (_HistoryStates == null)
 			{
@@ -164,7 +164,7 @@ namespace qf4net
 			}
 
 			ArrayList list = new ArrayList (_HistoryStates.Values);
-			IStateMethodInfo[] infos = (IStateMethodInfo[]) list.ToArray (typeof (IStateMethodInfo));
+			IStateInfo[] infos = (IStateInfo[]) list.ToArray (typeof (IStateInfo));
 			return infos;
 		}
 

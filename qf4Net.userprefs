@@ -1,52 +1,17 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="GQHSM\GHQSMXMLDataAttribute.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="AssemblyInfo.cs">
     <Files>
+      <File FileName="c:\Development\qf4Net\QF4NetExtensions\QGUITimerEventManagerRunner.cs" Line="1" Column="1" />
+      <File FileName="LoggingUtil\AssemblyInfo.cs" Line="1" Column="1" />
+      <File FileName="..\StateProto\MurphyPA\Modelling\H2D\doc\Hsm\Samples\SampleSaveAndRestore\doc\testbook.cs" Line="272" Column="2" />
       <File FileName="QF4NetExtensions\StateMethodAttribute.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBase.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerEventProxy.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQHsmEvents.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQEventManagerEvents.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\LQHsm.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\ILQHsm.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQStateChangeListener.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\IQEvent.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\QHsm.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\IQHsm.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\QSignals.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\QEvent.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQPort.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QStateChangeListenerBase.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQEventManager.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQHsmLifeCycleManagerEvents.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QSingleHsmEventManager.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QEventManagerBase.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QMultiHsmEventManager.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBaseAndMultipleEventManager.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QEventManagerEventsBase.cs" Line="1" Column="1" />
-      <File FileName="LoggingUtil\LoggingUserBase.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerEventsBase.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerBase.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBaseAndEventManager.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QHsmLifeCycleManagerWithHsmEventsBaseAndEventManagerBase.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\QActive.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\QF.cs" Line="115" Column="29" />
-      <File FileName="HierarchicalStateMachine\src\QHsmWithQueue.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\EventQueueFactory.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\QPort.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\LQHsmHelper.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\SerialisationContext.cs" Line="12" Column="30" />
-      <File FileName="QF4NetExtensions\StateCommandAttribute.cs" Line="9" Column="36" />
-      <File FileName="QF4NetExtensions\MementoFieldInfo.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQMultiPort.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\LQHsmWithSubMachines.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\LQHsmMemento.cs" Line="1" Column="1" />
-      <File FileName="HierarchicalStateMachine\src\IQFTransaction.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\IQSimpleCommand.cs" Line="1" Column="1" />
-      <File FileName="QF4NetExtensions\ModelInformationAttribute.cs" Line="1" Column="1" />
-      <File FileName="GQHSM\GQHSMState.cs" Line="39" Column="23" />
-      <File FileName="GQHSM\GHQSMXMLReader.cs" Line="38" Column="1" />
-      <File FileName="GQHSM\GHQSMXMLDataAttribute.cs" Line="9" Column="35" />
+      <File FileName="GQHSM\GQHSMState.cs" Line="87" Column="17" />
+      <File FileName="AssemblyInfo.cs" Line="27" Column="1" />
+      <File FileName="c:\Development\qf4Net\GQHSM\GQHSM.cs" Line="97" Column="4" />
+      <File FileName="c:\Development\qf4Net\GQHSM\GQHSMManager.cs" Line="117" Column="56" />
+      <File FileName="c:\Development\qf4Net\TestXMLLoader\Main.cs" Line="51" Column="69" />
+      <File FileName="TestXMLLoader\AssemblyInfo.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

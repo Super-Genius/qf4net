@@ -406,7 +406,7 @@ namespace qf4net
 		public void Serialise (ISerialisationContext context)
 		{
 			context.Formatter.Serialize (context.Stream, _UniqueName);
-			context.Formatter.Serialize (context.Stream, this.CurrentStateMethod);
+			context.Formatter.Serialize (context.Stream, this.CurrentState);
 			SaveHistoryStates (context);
 			SaveFields (context);
 		}
@@ -414,7 +414,7 @@ namespace qf4net
         public void Deserialise (ISerialisationContext context)
         {
             this._UniqueName = (string) context.Formatter.Deserialize (context.Stream); 
-            this.CurrentStateMethod  = (System.Reflection.MethodInfo) context.Formatter.Deserialize (context.Stream);
+            this.CurrentState  = (QState) context.Formatter.Deserialize (context.Stream);
             LoadHistoryStates (context);
             LoadFields (context);
 
@@ -447,7 +447,7 @@ namespace qf4net
 
             memento.Id = this.Id;
             memento.GroupId = this.GroupId;
-            memento.CurrentStateMethod = this.CurrentStateMethod;
+            memento.CurrentState = this.CurrentState;
 
             SaveHistoryStates (memento);
 			SaveFields (memento);
@@ -464,7 +464,7 @@ namespace qf4net
 
 			_UniqueName = memento.Id;
             _GroupId = memento.GroupId;
-			this.CurrentStateMethod = memento.CurrentStateMethod;
+			this.CurrentState = memento.CurrentState;
 
 			RestoreHistoryStates (memento);
 			RestoreFields (memento);
@@ -474,8 +474,8 @@ namespace qf4net
 
         protected virtual void LogRestored ()
         {
-            Delegate stateDelegate = Delegate.CreateDelegate (typeof (QState), this, CurrentStateMethod.Name);
-            QState currentState = (QState) stateDelegate;
+            Delegate stateDelegate = Delegate.CreateDelegate (typeof (QStateDelegate), this, CurrentState.Name);
+            QState currentState = new QState(this, (QStateDelegate)stateDelegate, CurrentState.Name);
             LogStateEvent (StateLogType.Restored, currentState);
         }
 
