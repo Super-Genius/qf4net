@@ -62,7 +62,7 @@ namespace qf4net
         /// <summary>
         /// Maps a GUID to a GHQMState
         /// </summary>
-        private Dictionary<Guid, GQHSMState> _guidToStateMap = new  Dictionary<Guid, GQHSMState>();
+        private Dictionary<Guid, GQHSMState> _guidToStateMap = new Dictionary<Guid, GQHSMState>();
         /// <summary>
         /// Maps a string (Name) to GHQMState class
         /// </summary>
@@ -123,22 +123,45 @@ namespace qf4net
 
         public void AddTransitionNameMap(GQHSMTransition transition)
         {
-            string tName = transition.EventSignal;
+            string tName;
+            if (transition.EventSignal.Length != 0)
+            {
+                tName = transition.EventSignal;
+            }
+            else
+            {
+                tName = transition.Name;
+            }
 
             // find state this transition is associated with
             GQHSMState state = GetState(transition.GetSourceStateID());
             if (state != null)
             {
-                tName = state.GetFullName() + "::" + transition.EventSignal;
+                tName = state.GetFullName() + "::" + tName;
             }
 
             if (transition.GuardCondition.Length == 0)
             {
-                _nameToTransitionMap.Add(tName, transition);
+                if (!_nameToTransitionMap.ContainsKey(tName))
+                {
+                    _nameToTransitionMap.Add(tName, transition);
+                }
+                else
+                {
+                    _lQHsm.Logger.Error("Duplicate name in transitions {0}\n", tName);
+                }
             }
             else
             {
-                _nameToGuardedTransitionMap.Add(tName, transition);
+                if (!_nameToGuardedTransitionMap.ContainsKey(tName))
+                {
+                    _nameToGuardedTransitionMap.Add(tName, transition);
+                }
+                else
+                {
+                    _lQHsm.Logger.Error("Duplicate name in transitions {0}\n", tName);
+                }
+
             }
         }
 
@@ -172,8 +195,8 @@ namespace qf4net
 
         public void SignalTransition(string transitionName, object data)
         {
-            _lQHsm.AsyncDispatch (new QEvent (transitionName, data));
-            
+            _lQHsm.AsyncDispatch(new QEvent(transitionName, data));
+
         }
 
         public void InitState(QState newState)
@@ -195,7 +218,7 @@ namespace qf4net
                     foundTransition = null;
                 }
             }
-            
+
             if (foundTransition == null)
             {
                 _nameToTransitionMap.TryGetValue(transistionName, out foundTransition);

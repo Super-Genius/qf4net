@@ -92,7 +92,21 @@ namespace qf4net
 
         public void SaveToXML(string filePathName, GLQHSM hsm)
         {
-            // Creates an instance of the XmlSerializer class;
+            FileStream fs = new FileStream(filePathName, FileMode.Create);
+            if (fs == null)
+            {
+                Logger.Warn("Unable to create {0}", filePathName);
+                return;
+            }
+			
+			SaveToXML(fs, hsm);
+			
+            fs.Close();
+        }
+		
+		public void SaveToXML(Stream fs, GLQHSM hsm)
+		{
+			// Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
             XmlSerializer serializer = new XmlSerializer(typeof(GLQHSM));
 
@@ -102,19 +116,30 @@ namespace qf4net
             serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
-            FileStream fs = new FileStream(filePathName, FileMode.Create);
-            if (fs == null)
-            {
-                Logger.Warn("Unable to create {0}", filePathName);
-                return;
-            }
 
             serializer.Serialize(fs, hsm);
 
-            fs.Close();
-        }
-
+		}
+	
         public GLQHSM LoadFromXML(string filePathName, bool bInit)
+        {
+            GLQHSM theHSM;
+
+            FileStream fs = new FileStream(filePathName, FileMode.Open);
+            if (fs == null)
+            {
+                Logger.Warn("Unable to open {0}", filePathName);
+                return null;
+            }
+			
+			theHSM = LoadFromXML(Path.GetFileNameWithoutExtension(filePathName), fs, bInit);
+
+            fs.Close();
+
+            return theHSM;
+        }
+		
+        public GLQHSM LoadFromXML(string fileName, Stream fs, bool bInit)
         {
             GLQHSM theHSM;
 
@@ -127,25 +152,41 @@ namespace qf4net
             serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
-            FileStream fs = new FileStream(filePathName, FileMode.Open);
-            if (fs == null)
-            {
-                Logger.Warn("Unable to open {0}", filePathName);
-                return null;
-            }
 
             theHSM = (GLQHSM)serializer.Deserialize(fs);
-            theHSM.SetName(Path.GetFileNameWithoutExtension(filePathName));
+			theHSM.SetName(fileName);
             if (bInit)
             {
                 theHSM.Init();
             }
 
-            fs.Close();
+            return theHSM;
+        }
+		
+        public GLQHSM LoadFromXML(string fileName, string sXML, bool bInit)
+        {
+            GLQHSM theHSM;
+
+            // Creates an instance of the XmlSerializer class;
+            // specifies the type of object to be deserialized.
+            XmlSerializer serializer = new XmlSerializer(typeof(GLQHSM));
+            // If the XML document has been altered with unknown 
+            // nodes or attributes, handles them with the 
+            // UnknownNode and UnknownAttribute events.
+            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
+            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
+
+			StringReader srXML = new StringReader(sXML);
+            theHSM = (GLQHSM)serializer.Deserialize(srXML);
+			theHSM.SetName(fileName);
+            if (bInit)
+            {
+                theHSM.Init();
+            }
 
             return theHSM;
         }
-
+		
         private GQHSMManager()
         {
             // create an QHSM Event manager	

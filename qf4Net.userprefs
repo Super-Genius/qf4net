@@ -1,16 +1,16 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="AssemblyInfo.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="c:\Development\qf4Net\GQHSM\GQHSMManager.cs">
     <Files>
       <File FileName="c:\Development\qf4Net\QF4NetExtensions\QGUITimerEventManagerRunner.cs" Line="1" Column="1" />
       <File FileName="LoggingUtil\AssemblyInfo.cs" Line="1" Column="1" />
       <File FileName="..\StateProto\MurphyPA\Modelling\H2D\doc\Hsm\Samples\SampleSaveAndRestore\doc\testbook.cs" Line="272" Column="2" />
       <File FileName="QF4NetExtensions\StateMethodAttribute.cs" Line="1" Column="1" />
-      <File FileName="GQHSM\GQHSMState.cs" Line="87" Column="17" />
-      <File FileName="AssemblyInfo.cs" Line="27" Column="1" />
-      <File FileName="c:\Development\qf4Net\GQHSM\GQHSM.cs" Line="97" Column="4" />
-      <File FileName="c:\Development\qf4Net\GQHSM\GQHSMManager.cs" Line="117" Column="56" />
-      <File FileName="c:\Development\qf4Net\TestXMLLoader\Main.cs" Line="51" Column="69" />
+      <File FileName="GQHSM\GQHSMState.cs" Line="1" Column="1" />
+      <File FileName="AssemblyInfo.cs" Line="1" Column="1" />
+      <File FileName="c:\Development\qf4Net\GQHSM\GQHSM.cs" Line="1" Column="1" />
+      <File FileName="c:\Development\qf4Net\GQHSM\GQHSMManager.cs" Line="182" Column="1" />
+      <File FileName="c:\Development\qf4Net\TestXMLLoader\Main.cs" Line="39" Column="49" />
       <File FileName="TestXMLLoader\AssemblyInfo.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
