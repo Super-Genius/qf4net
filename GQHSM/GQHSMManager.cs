@@ -5,49 +5,43 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
-using qf4net;
 
 namespace qf4net
 {
-    public delegate void StateChangeDelegate();
-    public class StateChangeHandler
+    public delegate void GQHSMDelegate();
+    public delegate object GQHSMDelegateOO(object Params);
+ 
+    public class GQHSMHandler
     {
-        public object _sourceClass;
-        public StateChangeDelegate classDelegate;
+        private object _sourceObject;
+        private GQHSMDelegateOO _classDelegateOO = null;
+        private GQHSMDelegate _classDelegate = null;
 
-        public StateChangeHandler(object sourceClass, StateChangeDelegate sourceDelegate)
+        public GQHSMHandler(object sourceObject, GQHSMDelegateOO sourceDelegate)
         {
-            _sourceClass = sourceClass;
-            classDelegate = sourceDelegate;
+            _sourceObject = sourceObject;
+            _classDelegateOO = sourceDelegate;
         }
+
+        public GQHSMHandler(object sourceObject, GQHSMDelegate sourceDelegate)
+        {
+            _sourceObject = sourceObject;
+            _classDelegate = sourceDelegate;
+        }
+
+        public object Invoke(object Params = null)
+        {
+            if (_classDelegate != null)
+                return _classDelegate.Method.Invoke(_sourceObject, null);
+            if (_classDelegateOO != null)
+                return _classDelegateOO.Method.Invoke(_sourceObject, new object[] { Params });
+
+            return null;
+        }
+
     }
 
-    public delegate void TransitionChangeDelegate(object data);
-    public class TransitionChangeHandler
-    {
-        public object _sourceClass;
-        public TransitionChangeDelegate classDelegate;
-
-        public TransitionChangeHandler(object sourceClass, TransitionChangeDelegate sourceDelegate)
-        {
-            _sourceClass = sourceClass;
-            classDelegate = sourceDelegate;
-        }
-    }
-
-    public delegate bool GuardDelegate();
-    public class GuardHandler
-    {
-        public object _sourceClass;
-        public GuardDelegate classDelegate;
-
-        public GuardHandler(object sourceClass, GuardDelegate sourceDelegate)
-        {
-            _sourceClass = sourceClass;
-            classDelegate = sourceDelegate;
-        }
-    }
-
+    
     public class GQHSMManager : LoggingUserBase
     {
 
@@ -57,19 +51,19 @@ namespace qf4net
  
         private class ActionHandlers
         {
-            public MultiMap<String, StateChangeHandler> ActionEntryMap = new MultiMap<String, StateChangeHandler>();
-            public MultiMap<String, StateChangeHandler> ActionExitMap = new MultiMap<String, StateChangeHandler>();
+            public MultiMap<String, GQHSMHandler> ActionEntryMap = new MultiMap<String, GQHSMHandler>();
+            public MultiMap<String, GQHSMHandler> ActionExitMap = new MultiMap<String, GQHSMHandler>();
         }
         private Dictionary<string, ActionHandlers> m_QHSMActionHandlers = new Dictionary<string, ActionHandlers>();
 
         /// transition change handlers for HSMs
-        public MultiMap<String, TransitionChangeHandler> TransistionMap = new MultiMap<String, TransitionChangeHandler>();
-        private Dictionary<string, MultiMap<String, TransitionChangeHandler>> m_QHSMTransitionHandlers = new Dictionary<string, MultiMap<String, TransitionChangeHandler>>();
+        //public MultiMap<String, GQHSMHandler> TransistionMap = new MultiMap<String, GQHSMHandler>();
+        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMTransitionHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
 
         /// guard function delegates for HSMs
-        public MultiMap<String, GuardHandler> GuardMap = new MultiMap<String, GuardHandler>();
-        private Dictionary<string, MultiMap<String, GuardHandler>> m_QHSMGuardHandlers = new Dictionary<string, MultiMap<String, GuardHandler>>();
-
+        //public MultiMap<String, GQHSMHandler> GuardMap = new MultiMap<String, GQHSMHandler>();
+        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMGuardHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
+		
         public float UpdateRate = .1f;
 
         private static GQHSMManager _instance = null;
@@ -220,7 +214,7 @@ namespace qf4net
         }
 
         // Allow other classes to register Action Handlers for StateMachine Actions OnEntry/OnExit
-        public void RegisterActionHandler(StateChangeHandler scHandler, string sMachineName, string sActionName, string sSignalType)
+        public void RegisterActionHandler(GQHSMHandler scHandler, string sMachineName, string sActionName, string sSignalType)
         {
             ActionHandlers actionHandlers;
 
@@ -243,7 +237,7 @@ namespace qf4net
 
         public void CallActionHandler(string sMachineName, string sActionName, string sSignalType)
         {
-            List<StateChangeHandler> actionList = null;
+            List<GQHSMHandler> actionList = null;
             ActionHandlers actionHandlers;
 
             if (m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
@@ -260,9 +254,9 @@ namespace qf4net
 
                 if (actionList != null)
                 {
-                    foreach (StateChangeHandler scHandler in actionList)
+                    foreach (GQHSMHandler scHandler in actionList)
                     {
-                        scHandler.classDelegate.Method.Invoke(scHandler._sourceClass, null);
+                       scHandler.Invoke();
                     }
 
                 }
@@ -271,13 +265,13 @@ namespace qf4net
         }
 
         // Allow other classes to register transitions Handlers for StateMachine Transition events
-        public void RegisterTransitionHandler(TransitionChangeHandler tHandler, string sMachineName, string sTransitionName)
+        public void RegisterTransitionHandler(GQHSMHandler tHandler, string sMachineName, string sTransitionName)
         {
-            MultiMap<String, TransitionChangeHandler> transitionHandlers;
+            MultiMap<String, GQHSMHandler> transitionHandlers;
 
             if (!m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
             {
-                transitionHandlers = new MultiMap<String, TransitionChangeHandler>();
+                transitionHandlers = new MultiMap<String, GQHSMHandler>();
                 m_QHSMTransitionHandlers.Add(sMachineName, transitionHandlers);
             }
 
@@ -286,50 +280,52 @@ namespace qf4net
 
         public void CallTransitionHandler(string sMachineName, string sTransitionName, object data)
         {
-            List<TransitionChangeHandler> transitionList = null;
-            MultiMap<String, TransitionChangeHandler> transitionHandlers;
+            List<GQHSMHandler> transitionList = null;
+            MultiMap<String, GQHSMHandler> transitionHandlers;
 
             if (m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
             {
                 transitionList = transitionHandlers[sTransitionName];
-                foreach (TransitionChangeHandler tHandler in transitionList)
+                foreach (GQHSMHandler tHandler in transitionList)
                 {
-                    tHandler.classDelegate.Method.Invoke(tHandler._sourceClass, new object[] { data });
+                    tHandler.Invoke( data );
                 }
 
             }
         }
 
         // Allow other classes to register guard Handlers for StateMachine guard checking
-        public void RegisterGuardHandler(GuardHandler gHandler, string sMachineName, string sGuardName)
+        public void RegisterGuardHandler(GQHSMHandler gHandler, string sMachineName, string sGuardName)
         {
-            MultiMap<String, GuardHandler> guardHandlers;
+            MultiMap<String, GQHSMHandler> guardHandlers;
 
             if (!m_QHSMGuardHandlers.TryGetValue(sMachineName, out guardHandlers))
             {
-                guardHandlers = new MultiMap<String, GuardHandler>();
+                guardHandlers = new MultiMap<String, GQHSMHandler>();
                 m_QHSMGuardHandlers.Add(sMachineName, guardHandlers);
             }
 
             guardHandlers.Add(sGuardName, gHandler);
         }
 
-        public bool CallGuardHandler(string sMachineName, string sTransitionName)
+        public bool CallGuardHandler(string sMachineName, string sGuardCondition)
         {
-            List<GuardHandler> guardList = null;
-            MultiMap<String, GuardHandler> guardHandlers;
+            List<GQHSMHandler> guardList = null;
+            MultiMap<String, GQHSMHandler> GQHSMHandlers;
 
-            if (m_QHSMGuardHandlers.TryGetValue(sMachineName, out guardHandlers))
+            if (m_QHSMGuardHandlers.TryGetValue(sMachineName, out GQHSMHandlers))
             {
-                guardList = guardHandlers[sTransitionName];
-                foreach (GuardHandler gHandler in guardList)
+                guardList = GQHSMHandlers[sGuardCondition];
+                foreach (GQHSMHandler gHandler in guardList)
                 {
-                    return (bool)gHandler.classDelegate.Method.Invoke(gHandler._sourceClass, null);
+                    bool validated = (bool)gHandler.Invoke();
+                    if (validated)
+                        return true;
                 }
 
             }
 
-            return true;
+            return false;
         }
 
         /// <summary>

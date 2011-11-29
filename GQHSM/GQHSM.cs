@@ -17,6 +17,87 @@ namespace qf4net
         public GQHSMTransition[] m_Transitions;
     }
 
+    public class GQHSMTimeOut
+    {
+        private string _name;
+        private TimeSpan _duration;
+        private DateTime _dt;
+        private IQEvent _event;
+        private TimeOutType _type;
+        private enum GQHSMCallType
+        {
+            TIMEOUT_NONE,
+            TIMEOUT_TIMESPAN,
+            TIMEOUT_TIMESPAN_TYPE,
+            TIMEOUT_DATETIME,
+            TIMEOUT_DATETIME_TYPE
+        }
+        private GQHSMCallType _callType = GQHSMCallType.TIMEOUT_NONE;
+
+        private GQHSMTimeOut() {}
+
+        public GQHSMTimeOut(string name, TimeSpan duration, IQEvent ev)
+        {
+            _name = name;
+            _duration = duration;
+            _event = ev;
+            _callType = GQHSMCallType.TIMEOUT_TIMESPAN;
+
+        }
+
+        public GQHSMTimeOut(string name, TimeSpan duration, IQEvent ev, TimeOutType type)
+        {
+            _name = name;
+            _duration = duration;
+            _event = ev;
+            _type = type;
+            _callType = GQHSMCallType.TIMEOUT_TIMESPAN_TYPE;
+
+        }
+
+        public GQHSMTimeOut(string name, DateTime dt, IQEvent ev)
+        {
+            _name = name;
+            _dt = dt;
+            _event = ev;
+            _callType = GQHSMCallType.TIMEOUT_DATETIME;
+
+        }
+
+        public GQHSMTimeOut(string name, DateTime dt, IQEvent ev, TimeOutType type)
+        {
+            _name = name;
+            _dt = dt;
+            _event = ev;
+            _callType = GQHSMCallType.TIMEOUT_DATETIME_TYPE;
+
+        }
+
+        public void SetTimeOut(LQHsm sm)
+        {
+            switch (_callType)
+            {
+                case GQHSMCallType.TIMEOUT_TIMESPAN:
+                    sm.SetTimeOut(_name, _duration, _event);
+                    break;
+                case GQHSMCallType.TIMEOUT_TIMESPAN_TYPE:
+                    sm.SetTimeOut(_name, _duration, _event, _type);
+                    break;
+                case GQHSMCallType.TIMEOUT_DATETIME:
+                    sm.SetTimeOut(_name, _dt, _event);
+                    break;
+                case GQHSMCallType.TIMEOUT_DATETIME_TYPE:
+                    sm.SetTimeOut(_name, _dt, _event, _type);
+                    break;
+            }
+        }
+
+        public void ClearTimeOut(LQHsm sm)
+        {
+            sm.ClearTimeOut(_name);
+        }
+    }
+
     public class GLQHSMDum : LQHsm
     {
         public QState startState;
@@ -50,13 +131,18 @@ namespace qf4net
             return s_TransitionChainStore.GetOpenSlot();
         }
 
+        public QState GetCurrentState()
+        {
+            return CurrentState;
+        }
+
 
     }
 
     [XmlRoot("Glyphs")]
     public class GLQHSM : GQHSM
     {
-        private GLQHSMDum _lQHsm;
+        private GLQHSMDum _lQHsm = new GLQHSMDum();
         private string _name;
 
         /// <summary>
@@ -76,12 +162,18 @@ namespace qf4net
         /// <summary>
         /// Names to Guarded Transition map
         /// </summary>
-        private Dictionary<string, GQHSMTransition> _nameToGuardedTransitionMap = new Dictionary<string, GQHSMTransition>();
+        private MultiMap<string, GQHSMTransition> _nameToGuardedTransitionMultiMap = new MultiMap<string, GQHSMTransition>();
+
+        /// <summary>
+        /// Names to Timeout class map
+        /// </summary>
+        private Dictionary<Guid, GQHSMTimeOut> _nameToTimeOutMap = new Dictionary<Guid, GQHSMTimeOut>();
 
         public void Init()
-        {
-            _lQHsm = new GLQHSMDum();
+        {		
             GQHSMManager.Instance.RegisterHsm(_lQHsm);
+			
+			//GQHSMManager.Instance.RegisterStateCommandHandler(theHSM.SetName(fileName);
 
             if (m_States != null)
             {
@@ -113,7 +205,7 @@ namespace qf4net
             string fullName = state.Name;
             while ((curState = curState.GetParent()) != null)
             {
-                fullName = curState.Name + "::" + fullName;
+                fullName = curState.Name + "." + fullName;
             }
 
             _nameToStateMap.Add(fullName, state);
@@ -123,12 +215,8 @@ namespace qf4net
 
         public void AddTransitionNameMap(GQHSMTransition transition)
         {
-            string tName;
-            if (transition.EventSignal.Length != 0)
-            {
-                tName = transition.EventSignal;
-            }
-            else
+            string tName = transition.EventSignal;
+            if (tName.Length == 0)
             {
                 tName = transition.Name;
             }
@@ -137,7 +225,7 @@ namespace qf4net
             GQHSMState state = GetState(transition.GetSourceStateID());
             if (state != null)
             {
-                tName = state.GetFullName() + "::" + tName;
+                tName = state.GetFullName() + "." + tName;
             }
 
             if (transition.GuardCondition.Length == 0)
@@ -153,46 +241,41 @@ namespace qf4net
             }
             else
             {
-                if (!_nameToGuardedTransitionMap.ContainsKey(tName))
-                {
-                    _nameToGuardedTransitionMap.Add(tName, transition);
-                }
-                else
-                {
-                    _lQHsm.Logger.Error("Duplicate name in transitions {0}\n", tName);
-                }
-
+               _nameToGuardedTransitionMultiMap.Add(tName, transition);
             }
         }
 
-        public bool DoTransition(string fullTransitionName, object data)
+        public bool DoTransition(string signalName, object data)
         {
             GQHSMTransition transition;
 
-            transition = GetGuardedTransition(fullTransitionName);
+            transition = GetGuardedTransition(signalName);
+
             if (transition != null)
             {
-                string fullGuardedTransitionName = fullTransitionName;
-                if (transition.GuardCondition.Length != 0)
-                {
-                    fullGuardedTransitionName = fullTransitionName + "::" + transition.GuardCondition;
-                }
-
-                GQHSMManager.Instance.CallTransitionHandler(_name, fullGuardedTransitionName, data);
 
                 GQHSMState toState = GetState(transition.GetDestinationStateID());
+                GQHSMState fromState = GetState(transition.GetSourceStateID());
                 QState stateHandler = _lQHsm.GetTopState();
                 if (toState != null)
                 {
                     stateHandler = toState.GetStateHandler();
                 }
 
+                if (!transition.DoNotInstrument)
+                    _lQHsm.LogStateEvent(StateLogType.EventTransition, _lQHsm.GetCurrentState(), stateHandler, transition.Name, signalName);
+
+                string fullTransitionName = fromState.GetFullName() + "." + transition.GetFullName();
+                GQHSMManager.Instance.CallTransitionHandler(_name, fullTransitionName, data);
+
                 _lQHsm.DoTransitionTo(stateHandler, transition.GetSlot());
+
+                return true;
             }
 
             return false;
         }
-
+			
         public void SignalTransition(string transitionName, object data)
         {
             _lQHsm.AsyncDispatch(new QEvent(transitionName, data));
@@ -204,25 +287,25 @@ namespace qf4net
             _lQHsm.InitState(newState);
         }
 
-        public GQHSMTransition GetGuardedTransition(string transistionName)
+        public GQHSMTransition GetGuardedTransition(string signalName)
         {
+            List<GQHSMTransition> guardTansitions;
             GQHSMTransition foundTransition = null;
 
-            _nameToGuardedTransitionMap.TryGetValue(transistionName, out foundTransition);
-            if (foundTransition != null)
+
+            guardTansitions = _nameToGuardedTransitionMultiMap[signalName];
+
+            foreach (GQHSMTransition gTransition in guardTansitions)
             {
-                string fullTranstionGuardName = transistionName + "::" + foundTransition.GuardCondition;
-                // call the guard function if so
-                if (!GQHSMManager.Instance.CallGuardHandler(_name, fullTranstionGuardName))
+                if (GQHSMManager.Instance.CallGuardHandler(_name, gTransition.GuardCondition))
                 {
-                    foundTransition = null;
+                    return gTransition;
                 }
             }
 
-            if (foundTransition == null)
-            {
-                _nameToTransitionMap.TryGetValue(transistionName, out foundTransition);
-            }
+            // retrieve unguarded transition if any
+            _nameToTransitionMap.TryGetValue(signalName, out foundTransition);
+
             return foundTransition;
         }
 
@@ -281,6 +364,98 @@ namespace qf4net
             AddTransitionNameMap(transition);
         }
 
+        public void RegisterTimeOutExpression(Guid stateGuid, GQHSMTimeOut to)
+        {
+            if (!_nameToTimeOutMap.ContainsKey(stateGuid))
+            {
+                _nameToTimeOutMap.Add(stateGuid, to);
+            }
+            else
+            {
+                _lQHsm.Logger.Error("Duplicate Guid in TimeOut {0}\n", stateGuid);
+            }
+
+        }
+
+        public void SetTimeOut(Guid stateGuid)
+        {
+            GQHSMTimeOut foundTO = null;
+
+            // see if it is in the list and if so return it's QState delegate
+            _nameToTimeOutMap.TryGetValue(stateGuid, out foundTO);
+
+            if (foundTO != null)
+            {
+                foundTO.SetTimeOut(_lQHsm);
+            }
+        }
+
+        public void ClearTimeOut(Guid stateGuid)
+        {
+            GQHSMTimeOut foundTO = null;
+
+            // see if it is in the list and if so return it's QState delegate
+            _nameToTimeOutMap.TryGetValue(stateGuid, out foundTO);
+
+            if (foundTO != null)
+            {
+                foundTO.ClearTimeOut(_lQHsm);
+            }
+        }
+
+        /// <summary>
+        /// Parse Timeout Expressions
+        ///     single float (i.e. 1.0, 0.1, etc converts to TimeSpan.FromSeconds(value)
+        ///     every float (i.e. "every 1.0") repeats timeout every TimeSpan.FromSeconds(value)
+        ///     at DateTime (i.e. "at Sat, 01 Nov 2008 19:35:00 GMT") does single at DateTime.Parse(value)
+        /// </summary>
+        /// <param name="transition"></param>
+        /// <param name="expression"></param>
+        public void RegisterTimeOutExpression(GQHSMTransition transition, string expression)
+        {
+                string timeOutExpression = expression.Trim ();
+                string eventSignal = transition.EventSignal;
+                if (transition.EventSignal.Length > 0)
+                {
+                    eventSignal = transition.EventSignal;
+                }
+                else
+                {
+                    eventSignal = transition.Name;
+                }
+
+				if (timeOutExpression.IndexOf (" ") == -1)
+				{
+                    RegisterTimeOutExpression(transition.GetSourceStateID(),
+                        new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(Convert.ToSingle(timeOutExpression)), new QEvent(eventSignal)));
+				} 
+				else 
+				{
+					string[] strList = timeOutExpression.Split (' ');
+					string timeOut = strList [strList.Length - 1].Trim ();
+                    TimeOutType flag = TimeOutType.Single;
+					if (timeOutExpression.StartsWith ("every"))
+					{
+                        flag = TimeOutType.Repeat;
+					}
+
+					if (timeOutExpression.StartsWith ("at"))
+					{
+                        flag = TimeOutType.Single;
+                        DateTime dt;
+
+                        dt = DateTime.Parse(timeOut);
+                        RegisterTimeOutExpression(transition.GetSourceStateID(),
+                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), dt, new QEvent(eventSignal)));
+
+					} 
+					else 
+					{
+                        RegisterTimeOutExpression(transition.GetSourceStateID(),
+                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(Convert.ToSingle(timeOut)), new QEvent(eventSignal), flag));
+					}
+				}
+        }
         public void SetName(string name)
         {
             _name = name;
@@ -289,6 +464,11 @@ namespace qf4net
         public string GetName()
         {
             return _name;
+        }
+
+        public LQHsm GetHSM()
+        {
+            return _lQHsm;
         }
 
         ~GLQHSM()

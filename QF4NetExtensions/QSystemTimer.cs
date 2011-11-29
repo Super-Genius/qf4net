@@ -80,6 +80,13 @@ namespace qf4net
 				_Hsm = hsm;
 				_Event = ev;
 				_TimeOutType = timeOutType;
+                if (duration.TotalMilliseconds == 0)
+                {
+                    _TimeOutType = TimeOutType.Single;
+                    _Timer_Elapsed(this, null);
+                    return;
+                }
+
 				double ms = duration.TotalMilliseconds;
 				double msInterval = ms > 0 ? ms : TimeSpan.MaxValue.TotalMilliseconds;
 				_Timer = new System.Timers.Timer (msInterval);
@@ -96,7 +103,8 @@ namespace qf4net
 					case TimeOutType.Single:
 					{
 						_Expired = true;
-						_Timer.Enabled = false;
+                        if (_Timer != null)
+						    _Timer.Enabled = false;
 					} break;
 				}
                 System.Threading.Thread.CurrentPrincipal = _Principal;
@@ -107,8 +115,11 @@ namespace qf4net
 
 			public void Dispose()
 			{
-				_Timer.Enabled = false;
-				_Timer.Dispose ();
+                if (_Timer != null)
+                {
+                    _Timer.Enabled = false;
+                    _Timer.Dispose();
+                }
 			}
 
 			#endregion

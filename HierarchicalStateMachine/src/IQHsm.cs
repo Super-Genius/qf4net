@@ -55,14 +55,14 @@ namespace qf4net
     public delegate QState QStateDelegate(IQEvent qEvent);
     public class QState
     {
-        public QStateDelegate callerDelegate;
-        public object callerClass;
+        public QStateDelegate calleeDelegate;
+        public object calleeObject;
         public string Name;
 
-        public QState(object sourceClass, QStateDelegate sourceDelegate, string sourceStateName)
+        public QState(object sourceObject, QStateDelegate sourceDelegate, string sourceStateName)
         {
-            callerDelegate = sourceDelegate;
-            callerClass = sourceClass;
+            calleeDelegate = sourceDelegate;
+            calleeObject = sourceObject;
             Name = sourceStateName;
         }
 
@@ -70,8 +70,13 @@ namespace qf4net
         {
             get
             {
-                return callerDelegate.Method;
+                return calleeDelegate.Method;
             }
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 

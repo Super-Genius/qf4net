@@ -8,6 +8,7 @@
 
 using System;
 using System.Xml.Serialization;
+using qf4net;
 
 namespace qf4net
 {
@@ -17,7 +18,7 @@ namespace qf4net
         private string[] _stateCommands;
         private QState _stateHandler;
         private GLQHSM _parentHSM;
-        private string _fullName;       // fully qualified name, i.e.  State1::State2::State3, etc.
+        private string _fullName;       // fully qualified name, i.e.  State1.State2.State3, etc.
         private GQHSMState _parent;
         private GQHSMState _childStartState = null;
 
@@ -74,7 +75,7 @@ namespace qf4net
         public GQHSMState()
         {
             Name = "";
-            DoNotInstrument = true;
+            DoNotInstrument = false;
             Id = System.Guid.NewGuid();
             EntryAction = "";
             ExitAction = "";
@@ -112,7 +113,7 @@ namespace qf4net
             return _childStartState;
         }
 
-        protected virtual QState StateHandler(IQEvent ev)
+        public QState StateHandler(IQEvent ev)
         {
             GQHSMManager manager =  GQHSMManager.Instance;
             switch (ev.QSignal)
@@ -122,6 +123,8 @@ namespace qf4net
                         GQHSMState childStartState = GetChildStartState();
                         if (childStartState != null)
                         {
+                            if (!DoNotInstrument)
+                                _parentHSM.GetHSM().LogStateEvent(StateLogType.Init, _stateHandler, childStartState.GetStateHandler());
                             _parentHSM.InitState(childStartState.GetStateHandler());
                             return null;
                         }
@@ -130,12 +133,28 @@ namespace qf4net
 
                 case QSignals.Entry:
                     {
-                        manager.CallActionHandler(_parentHSM.GetName(), _fullName, QSignals.Entry);
+                        if (!DoNotInstrument)
+                            _parentHSM.GetHSM().LogStateEvent(StateLogType.Entry, _stateHandler);
+                        string actionName = _fullName;
+                        if (EntryAction.Length > 0)
+                        {
+                            actionName = EntryAction;
+                        }
+                        manager.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Entry);
+                        _parentHSM.SetTimeOut(Id);
                     }
                     return null;
                 case QSignals.Exit:
                     {
-                        manager.CallActionHandler(_parentHSM.GetName(), _fullName, QSignals.Exit);
+                        if (!DoNotInstrument)
+                            _parentHSM.GetHSM().LogStateEvent(StateLogType.Exit, _stateHandler);
+                        string actionName = _fullName;
+                        if (ExitAction.Length > 0)
+                        {
+                            actionName = ExitAction;
+                        }
+                        manager.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Exit);
+                        _parentHSM.ClearTimeOut(Id);
                     }
                     return null;
                 case QSignals.Empty:
@@ -144,8 +163,8 @@ namespace qf4net
                     break;
                 default:
                     {
-                        string transitionName = _fullName + "::" + ev.QSignal;
-                        if (_parentHSM.DoTransition(transitionName, ev.QData))
+                        string fullSignalName = _fullName + "." + ev.QSignal;
+                        if (_parentHSM.DoTransition(fullSignalName, ev.QData))
                         {
                             return null;
                         }

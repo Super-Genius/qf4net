@@ -200,7 +200,7 @@ namespace qf4net
                     ComplainIfUnhandled (m_MyState, qEvent);
                 }
 
-                QState state = (QState)m_MySourceState.Method.Invoke(m_MySourceState.callerClass, new object[] { qEvent });
+                QState state = (QState)m_MySourceState.Method.Invoke(m_MySourceState.calleeObject, new object[] { qEvent });
                 if (state != null)
                 {
                     m_MySourceState = state;
@@ -359,7 +359,7 @@ namespace qf4net
 
 		private QState Trigger(QState state, string qSignal)
 		{
-			QState newState = (QState)state.Method.Invoke(state.callerClass, new object[] { new QEvent (qSignal) } );
+			QState newState = (QState)state.Method.Invoke(state.calleeObject, new object[] { (IQEvent)new QEvent (qSignal) } );
 			if (newState == null)
 			{
 				return null;
@@ -404,7 +404,7 @@ namespace qf4net
 		{
             QState superState;
             // don't care what type of object takes the method invocation
-            superState = (QState)state.Method.Invoke(state.callerClass, new object[] { new QEvent(QSignals.Empty) });
+            superState = (QState)state.Method.Invoke(state.calleeObject, new object[] { new QEvent(QSignals.Empty) });
 
 			if (superState != null)
 			{

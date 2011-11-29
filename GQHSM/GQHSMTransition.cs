@@ -73,6 +73,10 @@ namespace qf4net
             _parentHSM = parentHSM;
             _slot = slot;
             parentHSM.RegisterTransition(this);
+            if (TimeOutExpression.Length > 0)
+            {
+                parentHSM.RegisterTimeOutExpression(this, TimeOutExpression);
+            }
         }
 
         public Guid GetSourceStateID()
@@ -88,6 +92,26 @@ namespace qf4net
         public int GetSlot()
         {
             return _slot;
+        }
+
+        public string GetFullName()
+        {
+            string retS = EventSignal;
+
+            if (Name.Length > 0)
+            {
+                if (EventSignal.Length > 0)
+                {
+                    retS = Name + "." + EventSignal;
+                }
+                else
+                {
+                    retS = Name;
+                }
+            }
+
+            return retS;
+
         }
 
     }

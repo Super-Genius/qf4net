@@ -147,7 +147,7 @@ namespace qf4net
         }
 
         #region Instrumentation
-        protected void LogStateEvent (StateLogType logType, QState state, QState initState)
+        public void LogStateEvent (StateLogType logType, QState state, QState initState)
         {
             System.Diagnostics.Debug.Assert (logType == StateLogType.Init);
             LogStateEventArgs logEvent = new LogStateEventArgs ();
@@ -157,7 +157,7 @@ namespace qf4net
             DoStateChange (logEvent);
         }
 
-        protected void LogStateEvent (StateLogType logType, QState state, string action)
+        public void LogStateEvent (StateLogType logType, QState state, string action)
         {
             LogStateEventArgs logEvent = new LogStateEventArgs ();
             logEvent.LogType = logType;
@@ -166,7 +166,7 @@ namespace qf4net
             DoStateChange (logEvent);
         }
 
-        protected void LogStateEvent (StateLogType logType, QState state)
+        public void LogStateEvent (StateLogType logType, QState state)
         {
             LogStateEventArgs logEvent = new LogStateEventArgs ();
             logEvent.LogType = logType;
@@ -174,7 +174,7 @@ namespace qf4net
             DoStateChange (logEvent);
         }
 
-        protected void LogStateEvent (StateLogType logType, QState state, QState toState, string eventName, string eventDescription)
+        public void LogStateEvent (StateLogType logType, QState state, QState toState, string eventName, string eventDescription)
         {
             LogStateEventArgs logEvent = new LogStateEventArgs ();
             logEvent.LogType = logType;
@@ -185,7 +185,7 @@ namespace qf4net
             DoStateChange (logEvent);
         }
 
-        protected void LogText (string fmt, params object[] args)
+        public void LogText (string fmt, params object[] args)
         {
             string msg;
             if (args == null || args.Length == 0)
@@ -227,7 +227,7 @@ namespace qf4net
         #endregion
 
         #region FinalStateReached event
-        protected virtual void RaiseFinalStateReached (EventHandler handler, ILQHsm hsm, QState state)
+        public virtual void RaiseFinalStateReached (EventHandler handler, ILQHsm hsm, QState state)
         {
             if (handler != null)
             {
@@ -243,7 +243,7 @@ namespace qf4net
             return true;
         }
 
-        protected void DoFinalStateReached (ILQHsm hsm, QState state)
+        public void DoFinalStateReached (ILQHsm hsm, QState state)
         {
             if (OnFinalStateReached (hsm, state))
             {
