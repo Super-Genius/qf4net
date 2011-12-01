@@ -29,7 +29,7 @@ namespace qf4net
             _classDelegate = sourceDelegate;
         }
 
-        public object Invoke(object Params = null)
+        public object Invoke(object Params)
         {
             if (_classDelegate != null)
                 return _classDelegate.Method.Invoke(_sourceObject, null);
@@ -235,7 +235,7 @@ namespace qf4net
             }
         }
 
-        public void CallActionHandler(string sMachineName, string sActionName, string sSignalType)
+        public void CallActionHandler(string sMachineName, string sActionName, string sSignalType, object data)
         {
             List<GQHSMHandler> actionList = null;
             ActionHandlers actionHandlers;
@@ -256,7 +256,7 @@ namespace qf4net
                 {
                     foreach (GQHSMHandler scHandler in actionList)
                     {
-                       scHandler.Invoke();
+                       scHandler.Invoke(data);
                     }
 
                 }
@@ -308,7 +308,7 @@ namespace qf4net
             guardHandlers.Add(sGuardName, gHandler);
         }
 
-        public bool CallGuardHandler(string sMachineName, string sGuardCondition)
+        public bool CallGuardHandler(string sMachineName, string sGuardCondition, object data)
         {
             List<GQHSMHandler> guardList = null;
             MultiMap<String, GQHSMHandler> GQHSMHandlers;
@@ -318,7 +318,7 @@ namespace qf4net
                 guardList = GQHSMHandlers[sGuardCondition];
                 foreach (GQHSMHandler gHandler in guardList)
                 {
-                    bool validated = (bool)gHandler.Invoke();
+                    bool validated = (bool)gHandler.Invoke(data);
                     if (validated)
                         return true;
                 }
@@ -334,7 +334,7 @@ namespace qf4net
  
         public void Update()
         {
-            m_EventManager.Poll();
+             m_EventManager.Poll();
         }
 
         protected void serializer_UnknownNode(object sender, XmlNodeEventArgs e)

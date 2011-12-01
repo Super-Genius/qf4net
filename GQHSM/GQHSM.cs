@@ -144,6 +144,7 @@ namespace qf4net
     {
         private GLQHSMDum _lQHsm = new GLQHSMDum();
         private string _name;
+		private object _data = null;
 
         /// <summary>
         /// Maps a GUID to a GHQMState
@@ -245,11 +246,11 @@ namespace qf4net
             }
         }
 
-        public bool DoTransition(string signalName, object data)
+        public bool DoStateTransition(string signalName, object data)
         {
             GQHSMTransition transition;
 
-            transition = GetGuardedTransition(signalName);
+            transition = GetGuardedTransition(signalName, data);
 
             if (transition != null)
             {
@@ -267,15 +268,24 @@ namespace qf4net
 
                 string fullTransitionName = fromState.GetFullName() + "." + transition.GetFullName();
                 GQHSMManager.Instance.CallTransitionHandler(_name, fullTransitionName, data);
+				
+				_data = data;
 
                 _lQHsm.DoTransitionTo(stateHandler, transition.GetSlot());
+				
+				_data = null;
 
                 return true;
             }
 
             return false;
         }
-			
+		
+		public object GetData()
+		{
+			return _data;
+		}
+		
         public void SignalTransition(string transitionName, object data)
         {
             _lQHsm.AsyncDispatch(new QEvent(transitionName, data));
@@ -287,7 +297,7 @@ namespace qf4net
             _lQHsm.InitState(newState);
         }
 
-        public GQHSMTransition GetGuardedTransition(string signalName)
+        public GQHSMTransition GetGuardedTransition(string signalName, object data)
         {
             List<GQHSMTransition> guardTansitions;
             GQHSMTransition foundTransition = null;
@@ -297,7 +307,7 @@ namespace qf4net
 
             foreach (GQHSMTransition gTransition in guardTansitions)
             {
-                if (GQHSMManager.Instance.CallGuardHandler(_name, gTransition.GuardCondition))
+                if (GQHSMManager.Instance.CallGuardHandler(_name, gTransition.GuardCondition, data))
                 {
                     return gTransition;
                 }

@@ -140,7 +140,7 @@ namespace qf4net
                         {
                             actionName = EntryAction;
                         }
-                        manager.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Entry);
+                        manager.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Entry, _parentHSM.GetData());
                         _parentHSM.SetTimeOut(Id);
                     }
                     return null;
@@ -153,7 +153,7 @@ namespace qf4net
                         {
                             actionName = ExitAction;
                         }
-                        manager.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Exit);
+                        manager.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Exit, _parentHSM.GetData());
                         _parentHSM.ClearTimeOut(Id);
                     }
                     return null;
@@ -164,7 +164,7 @@ namespace qf4net
                 default:
                     {
                         string fullSignalName = _fullName + "." + ev.QSignal;
-                        if (_parentHSM.DoTransition(fullSignalName, ev.QData))
+                        if (_parentHSM.DoStateTransition(fullSignalName, ev.QData))
                         {
                             return null;
                         }
