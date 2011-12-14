@@ -68,7 +68,7 @@ namespace qf4net
             TransitionType = eTransitionType.Normal;
         }
 
-        public void Init(GLQHSM parentHSM, int slot)
+        public void Init(GQHSM parentHSM, int slot)
         {
             _parentHSM = parentHSM;
             _slot = slot;

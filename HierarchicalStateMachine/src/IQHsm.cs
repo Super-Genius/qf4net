@@ -123,7 +123,7 @@ namespace qf4net
 		/// <param name="qEvent">The <see cref="IQEvent"/> to dispatch.</param>
 		void DispatchSynchronized(IQEvent qEvent);
 
-#warning This Exception Trap mechanism is not clean - ideally we're only really interested in unhandled exceptions.
+//#warning This Exception Trap mechanism is not clean - ideally we're only really interested in unhandled exceptions.
 		/// <summary>
 		/// Like Dispatch - but traps an exception and called DispatchException event.
 		/// If ReraiseOnException is true then the exception will be re-thrown.

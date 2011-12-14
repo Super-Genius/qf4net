@@ -100,7 +100,7 @@ namespace qf4net
 		/// <summary>
 		/// Must only be called once by the client of the state machine to initialize the machine.
 		/// </summary>
-		public void Init()
+		virtual public void Init()
 		{
 			Debug.Assert(m_MyState == s_TopState); // HSM not executed yet
 			QState state = m_MyState; // save m_StateHandler in a temporary

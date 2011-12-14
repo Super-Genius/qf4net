@@ -11,43 +11,43 @@ namespace TestXMLLoader
 	{
 		public static void Main (string[] args)
 		{
-            TestZombineXML testZombieXML;
+            TestZombieXML testZombieXML;
 
-            testZombieXML = new TestZombineXML();
-
-            testZombieXML.Run();
+            testZombieXML = new TestZombieXML();
+			
+			//testZombieXML.WriteStateMachine("testzombie-write.xml");
+			testZombieXML.Run();
         }
     }
 
-    class TestZombineXML
+    class TestZombieXML
     {
-        private GLQHSM _theHSM;
+        private GQHSM _theHSM;
         private ILogger _logger;
         private bool _endOfPath = false;
         private bool _isBehindDoor = false;
         private bool _pathToPlayer = false;
         private Random _randObj = new Random();
 
-        public TestZombineXML()
+        public TestZombieXML()
         {
             GQHSMManager manager = GQHSMManager.Instance;
 
             _theHSM = manager.LoadFromXML("ZombieAI.xml", false);
             // let's hook into the debugging
 
-            LQHsm _hsm = _theHSM.GetHSM();
+            _logger = _theHSM.Logger;
+            _theHSM.Instrument = true;
+			_theHSM.StateChange += new EventHandler(hsm_StateChange);
+			_theHSM.DispatchException += new DispatchExceptionHandler(hsm_DispatchException);
+			_theHSM.UnhandledTransition += new DispatchUnhandledTransitionHandler(hsm_UnhandledTransition);
 
-            _logger = _hsm.Logger;
-			_hsm.StateChange += new EventHandler(hsm_StateChange);
-			_hsm.DispatchException += new DispatchExceptionHandler(hsm_DispatchException);
-			_hsm.UnhandledTransition += new DispatchUnhandledTransitionHandler(hsm_UnhandledTransition);
+            _theHSM.RegisterGuardHandler(new GQHSMHandler(this, RandomRemain), "ZombieAI", "RandomRemain(5)");
+            _theHSM.RegisterGuardHandler(new GQHSMHandler(this, IsEndOfPath), "ZombieAI", "IsEndOfPath()");
+            _theHSM.RegisterGuardHandler(new GQHSMHandler(this, PathToPlayer), "ZombieAI", "PathToPlayer()");
+            //_theHSM.RegisterGuardHandler(new GQHSMHandler(this, IsBehindDoor), "ZombieAI", "IsBehindDoor()");
 
-            manager.RegisterGuardHandler(new GQHSMHandler(this, RandomRemain), "ZombieAI", "RandomRemain(5)");
-            manager.RegisterGuardHandler(new GQHSMHandler(this, IsEndOfPath), "ZombieAI", "IsEndOfPath()");
-            manager.RegisterGuardHandler(new GQHSMHandler(this, PathToPlayer), "ZombieAI", "PathToPlayer()");
-            manager.RegisterGuardHandler(new GQHSMHandler(this, IsBehindDoor), "ZombieAI", "IsBehindDoor()");
-
-            manager.RegisterActionHandler(new GQHSMHandler(this, OnClimbingOut), "ZombieAI", "OnClimbingOut", "ENTRY");
+            _theHSM.RegisterActionHandler(new GQHSMHandler(this, OnClimbingOut), "ZombieAI", "OnClimbingOut", "ENTRY");
             _theHSM.Init();
 
 
@@ -97,28 +97,28 @@ namespace TestXMLLoader
                     {
                         case System.ConsoleKey.L:
                             {
-                                _theHSM.SignalTransition("Collision.Ladder", null);
+                                _theHSM.SignalTransition("Trigger.Ladder.Enter", null);
                             }
                             break;
                         case System.ConsoleKey.F:
                             {
-                                _theHSM.SignalTransition("Falling", null);
+                                _theHSM.SignalTransition("Move.Horizontal", null);
                             }
                             break;
-                        case System.ConsoleKey.B:
+                        case System.ConsoleKey.G:
                             {
-                                _theHSM.SignalTransition("Collision.Block", null);
+                                _theHSM.SignalTransition("Trigger.OnGround", null);
                             }
                             break;
                         case System.ConsoleKey.H:
                             {
-                                _theHSM.SignalTransition("Collision.Hole", null);
+                                _theHSM.SignalTransition("Trigger.Hole.Enter", null);
                             }
                             break;
 
                         case System.ConsoleKey.P:
                             {
-                                _theHSM.SignalTransition("Collision.Player", null);
+                                _theHSM.SignalTransition("Trigger.Player.Enter", null);
                             }
                             break;
 
@@ -137,6 +137,12 @@ namespace TestXMLLoader
                         case System.ConsoleKey.T:
                             {
                                 _pathToPlayer = !_pathToPlayer;
+                            }
+                            break;
+
+                        case System.ConsoleKey.V:
+                            {
+                                _theHSM.SignalTransition("Move.Vertical", null);
                             }
                             break;
 
@@ -202,22 +208,28 @@ namespace TestXMLLoader
 		{
             _logger.Debug("[{0}] Unhandled Event: {1}", hsm.ToString(), ev.ToString());
 		}
+		
+		public void WriteStateMachine(string name)
+		{
+            GQHSMManager.Instance.SaveToXML(name, _theHSM);
+			
+		}
 
     }
 
     class TestBookXML
     { 
-        GLQHSM _theHSM;
+        GQHSM _theHSM;
 
         public TestBookXML()
         {
             GQHSMManager manager = GQHSMManager.Instance;
 
-            manager.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryEntry), "book", "NotOwnedByLibrary", QSignals.Entry);
-            manager.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryExit), "book", "NotOwnedByLibrary", QSignals.Exit);
-            manager.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryEntry_OtherOwner), "book", "NotOwnedByLibrary.OtherOwner", QSignals.Entry);
-            manager.RegisterTransitionHandler(new GQHSMHandler(null, NotOwnedByLibrary_Bought), "book", "NotOwnedByLibrary.Bought");
-            manager.RegisterGuardHandler(new GQHSMHandler(null, IsLate), "book", "OwnedByLibrary.OnLoan.IsLate()");
+            _theHSM.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryEntry), "book", "NotOwnedByLibrary", QSignals.Entry);
+            _theHSM.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryExit), "book", "NotOwnedByLibrary", QSignals.Exit);
+            _theHSM.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryEntry_OtherOwner), "book", "NotOwnedByLibrary.OtherOwner", QSignals.Entry);
+            _theHSM.RegisterTransitionHandler(new GQHSMHandler(null, NotOwnedByLibrary_Bought), "book", "NotOwnedByLibrary.Bought");
+            _theHSM.RegisterGuardHandler(new GQHSMHandler(null, IsLate), "book", "OwnedByLibrary.OnLoan.IsLate()");
 
             _theHSM = manager.LoadFromXML("book.xml", true);
     	}

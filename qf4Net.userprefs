@@ -1,8 +1,22 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="c:\Development\qf4Net\QF4NetExtensions\QGUITimerEventManagerRunner.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="GQHSM\GQHSM.cs">
     <Files>
       <File FileName="c:\Development\qf4Net\QF4NetExtensions\QGUITimerEventManagerRunner.cs" Line="22" Column="22" />
+      <File FileName="..\test.cs" Line="621" Column="28" />
+      <File FileName="GQHSM\GQHSMState.cs" Line="1" Column="1" />
+      <File FileName="GQHSM\GQHSMManager.cs" Line="1" Column="1" />
+      <File FileName="GQHSM\GQHSM.cs" Line="125" Column="29" />
+      <File FileName="QF4NetExtensions\LQHsm.cs" Line="1" Column="1" />
+      <File FileName="TestXMLLoader\Main.cs" Line="1" Column="1" />
+      <File FileName="c:\Development\qf4Net\QF4NetExtensions\HsmEventHolder.cs" Line="1" Column="1" />
+      <File FileName="c:\Development\qf4Net\HierarchicalStateMachine\src\IQHsm.cs" Line="1" Column="1" />
+      <File FileName="c:\Development\qf4Net\QF4NetExtensions\QEventManagerBase.cs" Line="1" Column="1" />
+      <File FileName="QF4NetExtensions\ILQHsm.cs" Line="1" Column="1" />
+      <File FileName="HierarchicalStateMachine\src\QHsm.cs" Line="1" Column="1" />
+      <File FileName="GQHSM\GQHSMHandler.cs" Line="1" Column="1" />
+      <File FileName="GQHSM\GQHSMTimeout.cs" Line="1" Column="1" />
+      <File FileName="c:\Development\qf4Net\GQHSM\GQHSMTransition.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

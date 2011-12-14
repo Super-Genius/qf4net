@@ -1,152 +1,65 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-using qf4net;
+using System.Collections.Generic;
 
 namespace qf4net
 {
-
-    public class GQHSM
-    {
+	[XmlRootAttribute(ElementName = "Glyphs", Namespace = "", DataType = "")]
+	public class GHQSMSerializable
+	{
         [XmlElement("StateGlyph")]
         public GQHSMState[] m_States;
 
         [XmlElement("TransitionGlyph")]
         public GQHSMTransition[] m_Transitions;
-    }
-
-    public class GQHSMTimeOut
+	}
+		
+    public class GQHSM : LQHsm
     {
-        private string _name;
-        private TimeSpan _duration;
-        private DateTime _dt;
-        private IQEvent _event;
-        private TimeOutType _type;
-        private enum GQHSMCallType
-        {
-            TIMEOUT_NONE,
-            TIMEOUT_TIMESPAN,
-            TIMEOUT_TIMESPAN_TYPE,
-            TIMEOUT_DATETIME,
-            TIMEOUT_DATETIME_TYPE
-        }
-        private GQHSMCallType _callType = GQHSMCallType.TIMEOUT_NONE;
-
-        private GQHSMTimeOut() {}
-
-        public GQHSMTimeOut(string name, TimeSpan duration, IQEvent ev)
-        {
-            _name = name;
-            _duration = duration;
-            _event = ev;
-            _callType = GQHSMCallType.TIMEOUT_TIMESPAN;
-
-        }
-
-        public GQHSMTimeOut(string name, TimeSpan duration, IQEvent ev, TimeOutType type)
-        {
-            _name = name;
-            _duration = duration;
-            _event = ev;
-            _type = type;
-            _callType = GQHSMCallType.TIMEOUT_TIMESPAN_TYPE;
-
-        }
-
-        public GQHSMTimeOut(string name, DateTime dt, IQEvent ev)
-        {
-            _name = name;
-            _dt = dt;
-            _event = ev;
-            _callType = GQHSMCallType.TIMEOUT_DATETIME;
-
-        }
-
-        public GQHSMTimeOut(string name, DateTime dt, IQEvent ev, TimeOutType type)
-        {
-            _name = name;
-            _dt = dt;
-            _event = ev;
-            _callType = GQHSMCallType.TIMEOUT_DATETIME_TYPE;
-
-        }
-
-        public void SetTimeOut(LQHsm sm)
-        {
-            switch (_callType)
-            {
-                case GQHSMCallType.TIMEOUT_TIMESPAN:
-                    sm.SetTimeOut(_name, _duration, _event);
-                    break;
-                case GQHSMCallType.TIMEOUT_TIMESPAN_TYPE:
-                    sm.SetTimeOut(_name, _duration, _event, _type);
-                    break;
-                case GQHSMCallType.TIMEOUT_DATETIME:
-                    sm.SetTimeOut(_name, _dt, _event);
-                    break;
-                case GQHSMCallType.TIMEOUT_DATETIME_TYPE:
-                    sm.SetTimeOut(_name, _dt, _event, _type);
-                    break;
-            }
-        }
-
-        public void ClearTimeOut(LQHsm sm)
-        {
-            sm.ClearTimeOut(_name);
-        }
-    }
-
-    public class GLQHSMDum : LQHsm
-    {
-        public QState startState;
-
-        public void InitState(QState newState)
-        {
-            InitializeState(newState);
-        }
-
-        public QState GetTopState()
-        {
-            return TopState;
-        }
-
-        protected override void InitializeStateMachine()
-        {
-            InitState(startState);
-        }
-
-        /// <summary>
-        /// Performs a dynamic transition; i.e., the transition path is determined on the fly and not recorded.
-        /// </summary>
-        /// <param name="targetState">The <see cref="QState"/> to transition to.</param>
-        public void DoTransitionTo(QState targetState, int slot)
-        {
-            TransitionTo(targetState, slot);
-        }
-
-        public int GetOpenSlot()
-        {
-            return s_TransitionChainStore.GetOpenSlot();
-        }
-
-        public QState GetCurrentState()
-        {
-            return CurrentState;
-        }
-
-
-    }
-
-    [XmlRoot("Glyphs")]
-    public class GLQHSM : GQHSM
-    {
-        private GLQHSMDum _lQHsm = new GLQHSMDum();
         private string _name;
 		private object _data = null;
-
+		private bool _instrument = false;
+		private GHQSMSerializable _hsmS;
+		
+		private GQHSMState[] m_States
+		{
+			get
+			{
+				return _hsmS.m_States;
+			}
+		}
+		
+		private GQHSMTransition[] m_Transitions
+		{
+			
+			get
+			{
+				return _hsmS.m_Transitions;
+			}
+		}
+		
         /// <summary>
+        /// Action Handlers for HSMs
+        /// </summary>
+ 
+        private class ActionHandlers
+        {
+            public MultiMap<String, GQHSMHandler> ActionEntryMap = new MultiMap<String, GQHSMHandler>();
+            public MultiMap<String, GQHSMHandler> ActionExitMap = new MultiMap<String, GQHSMHandler>();
+        }
+        private Dictionary<string, ActionHandlers> m_QHSMActionHandlers = new Dictionary<string, ActionHandlers>();
+
+        /// transition change handlers for HSMs
+        //public MultiMap<String, GQHSMHandler> TransistionMap = new MultiMap<String, GQHSMHandler>();
+        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMTransitionHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
+
+        /// guard function delegates for HSMs
+        //public MultiMap<String, GQHSMHandler> GuardMap = new MultiMap<String, GQHSMHandler>();
+        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMGuardHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
+
+		/// <summary>
         /// Maps a GUID to a GHQMState
         /// </summary>
         private Dictionary<Guid, GQHSMState> _guidToStateMap = new Dictionary<Guid, GQHSMState>();
@@ -170,9 +83,102 @@ namespace qf4net
         /// </summary>
         private Dictionary<Guid, GQHSMTimeOut> _nameToTimeOutMap = new Dictionary<Guid, GQHSMTimeOut>();
 
-        public void Init()
+        private QState _startState;
+					
+		public GHQSMSerializable HSMData
+		{
+			get	
+			{
+				return _hsmS;
+			}
+			
+			set
+			{
+				_hsmS = value;
+			}
+		}
+		
+        public void InitState(QState newState)
+        {
+            InitializeState(newState);
+        }
+
+        public QState GetTopState()
+        {
+            return TopState;
+        }
+
+        protected override void InitializeStateMachine()
+        {
+            InitState(_startState);
+        }
+
+        /// <summary>
+        /// Performs a dynamic transition; i.e., the transition path is determined on the fly and not recorded.
+        /// </summary>
+        /// <param name="targetState">The <see cref="QState"/> to transition to.</param>
+        public void DoTransitionTo(QState targetState, int slot)
+        {
+            TransitionTo(targetState, slot);
+        }
+		
+		public void DoTransitionTo(QState targetState)
+		{
+			DoTransitionTo(targetState, GetOpenSlot());
+		}
+		
+		public bool DoTransitionTo(string targetStateName)
+		{
+			GQHSMState targetState;
+			
+			if (_nameToStateMap.TryGetValue(targetStateName, out targetState))
+			{
+				DoTransitionTo(targetState.GetStateHandler(), GetOpenSlot());
+			}
+			else
+			{
+				return false;
+			}
+			
+			return true;	
+		}
+
+		public bool DoTransitionAsync(string targetStateName)
+		{
+			GQHSMState targetState;
+			
+			if (_nameToStateMap.TryGetValue(targetStateName, out targetState))
+			{
+				AsyncDispatch(new QEvent("Internal.TransitionTo", targetState));
+			}
+			else
+			{
+				return false;
+			}
+			
+			return true;	
+			
+		}
+		
+        public int GetOpenSlot()
+        {
+            return s_TransitionChainStore.GetOpenSlot();
+        }
+
+        public QState GetCurrentState()
+        {
+            return CurrentState;
+        }
+		
+        ~GQHSM()
+        {
+            GQHSMManager.Instance.UnregisterHsm(this);
+
+        }
+		
+        public override void Init()
         {		
-            GQHSMManager.Instance.RegisterHsm(_lQHsm);
+            GQHSMManager.Instance.RegisterHsm(this);
 			
 			//GQHSMManager.Instance.RegisterStateCommandHandler(theHSM.SetName(fileName);
 
@@ -183,7 +189,7 @@ namespace qf4net
                     gs.Init(this, null);
                     if (gs.IsStartState)
                     {
-                        _lQHsm.startState = gs.GetStateHandler();
+                        _startState = gs.GetStateHandler();
                     }
                 }
             }
@@ -192,14 +198,27 @@ namespace qf4net
             {
                 foreach (GQHSMTransition gt in m_Transitions)
                 {
-                    gt.Init(this, _lQHsm.GetOpenSlot());
+                    gt.Init(this, GetOpenSlot());
                 }
             }
 
-            _lQHsm.Init();
+            base.Init();
 
         }
 
+		public bool Instrument
+		{
+			get
+			{
+				return _instrument;
+			}
+			
+			set
+			{
+				_instrument = value;
+			}
+		}
+		
         public string AddStateNameMap(GQHSMState state)
         {
             GQHSMState curState = state;
@@ -237,7 +256,7 @@ namespace qf4net
                 }
                 else
                 {
-                    _lQHsm.Logger.Error("Duplicate name in transitions {0}\n", tName);
+                    Logger.Error("Duplicate name in transitions {0}\n", tName);
                 }
             }
             else
@@ -245,42 +264,68 @@ namespace qf4net
                _nameToGuardedTransitionMultiMap.Add(tName, transition);
             }
         }
-
-        public bool DoStateTransition(string signalName, object data)
+		
+		/// <summary>
+		/// Do a internal transition to another state using signalName
+		/// </summary>
+		/// <returns>
+		/// true if handled
+		/// </returns>
+		/// <param name='signalName'>
+		/// The name of the signal that will transition to another state
+		/// </param>
+		/// <param name='data'>
+		/// any object that is passed between states
+		/// </param>
+		public bool StateTransitionInternal(string stateName, string signalName, object data)
         {
-            GQHSMTransition transition;
+            GQHSMTransition transition = null;
+			string fullTransitionName = stateName + "." + signalName;
+            // if we know about the transition
+            bool retVal = false;
 
-            transition = GetGuardedTransition(signalName, data);
+            retVal = GetGuardedTransition(fullTransitionName, data, ref transition);
 
             if (transition != null)
             {
 
                 GQHSMState toState = GetState(transition.GetDestinationStateID());
                 GQHSMState fromState = GetState(transition.GetSourceStateID());
-                QState stateHandler = _lQHsm.GetTopState();
+                QState stateHandler = GetTopState();
                 if (toState != null)
                 {
                     stateHandler = toState.GetStateHandler();
                 }
 
-                if (!transition.DoNotInstrument)
-                    _lQHsm.LogStateEvent(StateLogType.EventTransition, _lQHsm.GetCurrentState(), stateHandler, transition.Name, signalName);
+                if (_instrument && !transition.DoNotInstrument)
+                    LogStateEvent(StateLogType.EventTransition, GetCurrentState(), stateHandler, transition.Name, signalName);
 
-                string fullTransitionName = fromState.GetFullName() + "." + transition.GetFullName();
-                GQHSMManager.Instance.CallTransitionHandler(_name, fullTransitionName, data);
+                CallTransitionHandler(_name, fullTransitionName, data);
 				
 				_data = data;
 
-                _lQHsm.DoTransitionTo(stateHandler, transition.GetSlot());
+                DoTransitionTo(stateHandler, transition.GetSlot());
 				
 				_data = null;
 
-                return true;
+                retVal = true;
             }
+			else if (signalName == "Internal.TransitionTo")
+			{
+				GQHSMState state = (GQHSMState)data;
+   	        	DoTransitionTo(state.GetStateHandler());
+                retVal = true;
+			}
 
-            return false;
+            return retVal;
         }
 		
+		/// <summary>
+		/// Gets the current data object that is passing between states/transitions
+		/// </summary>
+		/// <returns>
+		/// The generic data object that is being passed
+		/// </returns>
 		public object GetData()
 		{
 			return _data;
@@ -288,35 +333,35 @@ namespace qf4net
 		
         public void SignalTransition(string transitionName, object data)
         {
-            _lQHsm.AsyncDispatch(new QEvent(transitionName, data));
+            AsyncDispatch(new QEvent(transitionName, data));
 
         }
 
-        public void InitState(QState newState)
-        {
-            _lQHsm.InitState(newState);
-        }
-
-        public GQHSMTransition GetGuardedTransition(string signalName, object data)
+        public bool GetGuardedTransition(string signalName, object data, ref GQHSMTransition transition)
         {
             List<GQHSMTransition> guardTansitions;
             GQHSMTransition foundTransition = null;
+            bool retValue = false;
 
 
             guardTansitions = _nameToGuardedTransitionMultiMap[signalName];
 
             foreach (GQHSMTransition gTransition in guardTansitions)
             {
-                if (GQHSMManager.Instance.CallGuardHandler(_name, gTransition.GuardCondition, data))
+                // we had a guard condition and handled the transition but guard may have failed
+                retValue = true;
+                if (CallGuardHandler(_name, gTransition.GuardCondition, data))
                 {
-                    return gTransition;
+                    transition = gTransition;
+                    return true;
                 }
             }
 
             // retrieve unguarded transition if any
             _nameToTransitionMap.TryGetValue(signalName, out foundTransition);
+            transition = foundTransition;
 
-            return foundTransition;
+            return retValue;
         }
 
         public GQHSMTransition GetTransition(string transistionName)
@@ -343,14 +388,17 @@ namespace qf4net
         /// <returns></returns>
         public QState GetStateHandler(Guid Id)
         {
-            QState returnState = _lQHsm.GetTopState();
+            QState returnState = GetTopState();
             GQHSMState foundState;
 
-            foundState = GetState(Id);
-            if (foundState != null)
-            {
-                returnState = foundState.GetStateHandler();
-            }
+			if (Id != Guid.Empty)
+			{
+            	foundState = GetState(Id);
+            	if (foundState != null)
+            	{
+                	returnState = foundState.GetStateHandler();
+            	}
+			}
 
             return returnState;
         }
@@ -360,7 +408,7 @@ namespace qf4net
             // see if it is in the list and if so return it's QState delegate
             if (_guidToStateMap.ContainsKey(qState.Id))
             {
-                _lQHsm.Logger.Error("Can't have duplicate Guids for states : {0}", qState.Id);
+                Logger.Error("Can't have duplicate Guids for states : {0}", qState.Id);
                 return null;
             }
 
@@ -382,7 +430,7 @@ namespace qf4net
             }
             else
             {
-                _lQHsm.Logger.Error("Duplicate Guid in TimeOut {0}\n", stateGuid);
+                Logger.Error("Duplicate Guid in TimeOut {0}\n", stateGuid);
             }
 
         }
@@ -396,7 +444,7 @@ namespace qf4net
 
             if (foundTO != null)
             {
-                foundTO.SetTimeOut(_lQHsm);
+                foundTO.SetTimeOut(this);
             }
         }
 
@@ -409,7 +457,7 @@ namespace qf4net
 
             if (foundTO != null)
             {
-                foundTO.ClearTimeOut(_lQHsm);
+                foundTO.ClearTimeOut(this);
             }
         }
 
@@ -476,16 +524,121 @@ namespace qf4net
             return _name;
         }
 
-        public LQHsm GetHSM()
+        // Allow other classes to register Action Handlers for StateMachine Actions OnEntry/OnExit
+        public void RegisterActionHandler(GQHSMHandler scHandler, string sMachineName, string sActionName, string sSignalType)
         {
-            return _lQHsm;
+            ActionHandlers actionHandlers;
+
+            if (!m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
+            {
+                actionHandlers = new ActionHandlers();
+                m_QHSMActionHandlers.Add(sMachineName, actionHandlers);
+            }
+
+            switch (sSignalType)
+            {
+                case QSignals.Entry:
+                    actionHandlers.ActionEntryMap.Add(sActionName, scHandler);
+                    break;
+                case QSignals.Exit:
+                    actionHandlers.ActionExitMap.Add(sActionName, scHandler);
+                    break;
+            }
         }
 
-        ~GLQHSM()
+        public void CallActionHandler(string sMachineName, string sActionName, string sSignalType, object data)
         {
-            GQHSMManager.Instance.UnregisterHsm(_lQHsm);
+            List<GQHSMHandler> actionList = null;
+            ActionHandlers actionHandlers;
 
+            if (m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
+            {
+                switch (sSignalType)
+                {
+                    case QSignals.Entry:
+                        actionList = actionHandlers.ActionEntryMap[sActionName];
+                        break;
+                    case QSignals.Exit:
+                        actionList = actionHandlers.ActionExitMap[sActionName];
+                        break;
+                }
+
+                if (actionList != null)
+                {
+                    foreach (GQHSMHandler scHandler in actionList)
+                    {
+                       scHandler.Invoke(data);
+                    }
+
+                }
+
+            }
         }
+
+        // Allow other classes to register transitions Handlers for StateMachine Transition events
+        public void RegisterTransitionHandler(GQHSMHandler tHandler, string sMachineName, string sTransitionName)
+        {
+            MultiMap<String, GQHSMHandler> transitionHandlers;
+
+            if (!m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
+            {
+                transitionHandlers = new MultiMap<String, GQHSMHandler>();
+                m_QHSMTransitionHandlers.Add(sMachineName, transitionHandlers);
+            }
+
+            transitionHandlers.Add(sTransitionName, tHandler);
+        }
+
+        public void CallTransitionHandler(string sMachineName, string sTransitionName, object data)
+        {
+            List<GQHSMHandler> transitionList = null;
+            MultiMap<String, GQHSMHandler> transitionHandlers;
+
+            if (m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
+            {
+                transitionList = transitionHandlers[sTransitionName];
+                foreach (GQHSMHandler tHandler in transitionList)
+                {
+                    tHandler.Invoke( data );
+                }
+
+            }
+        }
+
+        // Allow other classes to register guard Handlers for StateMachine guard checking
+        public void RegisterGuardHandler(GQHSMHandler gHandler, string sMachineName, string sGuardName)
+        {
+            MultiMap<String, GQHSMHandler> guardHandlers;
+
+            if (!m_QHSMGuardHandlers.TryGetValue(sMachineName, out guardHandlers))
+            {
+                guardHandlers = new MultiMap<String, GQHSMHandler>();
+                m_QHSMGuardHandlers.Add(sMachineName, guardHandlers);
+            }
+
+            guardHandlers.Add(sGuardName, gHandler);
+        }
+
+        public bool CallGuardHandler(string sMachineName, string sGuardCondition, object data)
+        {
+            List<GQHSMHandler> guardList = null;
+            MultiMap<String, GQHSMHandler> GQHSMHandlers;
+
+            if (m_QHSMGuardHandlers.TryGetValue(sMachineName, out GQHSMHandlers))
+            {
+                guardList = GQHSMHandlers[sGuardCondition];
+                foreach (GQHSMHandler gHandler in guardList)
+                {
+                    bool validated = (bool)gHandler.Invoke(data);
+                    if (validated)
+                        return true;
+                }
+
+            }
+
+            return false;
+        }
+
+
     }
-
 }

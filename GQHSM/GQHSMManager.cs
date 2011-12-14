@@ -1,68 +1,13 @@
 ﻿using System;
 using System.IO;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 
 namespace qf4net
 {
-    public delegate void GQHSMDelegate();
-    public delegate object GQHSMDelegateOO(object Params);
- 
-    public class GQHSMHandler
-    {
-        private object _sourceObject;
-        private GQHSMDelegateOO _classDelegateOO = null;
-        private GQHSMDelegate _classDelegate = null;
-
-        public GQHSMHandler(object sourceObject, GQHSMDelegateOO sourceDelegate)
-        {
-            _sourceObject = sourceObject;
-            _classDelegateOO = sourceDelegate;
-        }
-
-        public GQHSMHandler(object sourceObject, GQHSMDelegate sourceDelegate)
-        {
-            _sourceObject = sourceObject;
-            _classDelegate = sourceDelegate;
-        }
-
-        public object Invoke(object Params)
-        {
-            if (_classDelegate != null)
-                return _classDelegate.Method.Invoke(_sourceObject, null);
-            if (_classDelegateOO != null)
-                return _classDelegateOO.Method.Invoke(_sourceObject, new object[] { Params });
-
-            return null;
-        }
-
-    }
-
     
     public class GQHSMManager : LoggingUserBase
     {
-
-        /// <summary>
-        /// Action Handlers for HSMs
-        /// </summary>
- 
-        private class ActionHandlers
-        {
-            public MultiMap<String, GQHSMHandler> ActionEntryMap = new MultiMap<String, GQHSMHandler>();
-            public MultiMap<String, GQHSMHandler> ActionExitMap = new MultiMap<String, GQHSMHandler>();
-        }
-        private Dictionary<string, ActionHandlers> m_QHSMActionHandlers = new Dictionary<string, ActionHandlers>();
-
-        /// transition change handlers for HSMs
-        //public MultiMap<String, GQHSMHandler> TransistionMap = new MultiMap<String, GQHSMHandler>();
-        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMTransitionHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
-
-        /// guard function delegates for HSMs
-        //public MultiMap<String, GQHSMHandler> GuardMap = new MultiMap<String, GQHSMHandler>();
-        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMGuardHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
 		
         public float UpdateRate = .1f;
 
@@ -84,7 +29,7 @@ namespace qf4net
             }
         }
 
-        public void SaveToXML(string filePathName, GLQHSM hsm)
+        public void SaveToXML(string filePathName, GQHSM hsm)
         {
             FileStream fs = new FileStream(filePathName, FileMode.Create);
             if (fs == null)
@@ -98,11 +43,13 @@ namespace qf4net
             fs.Close();
         }
 		
-		public void SaveToXML(Stream fs, GLQHSM hsm)
+		public void SaveToXML(Stream fs, GQHSM hsm)
 		{
-			// Creates an instance of the XmlSerializer class;
+			XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+			ns.Add("","");
+			
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(GLQHSM));
+            XmlSerializer serializer = new XmlSerializer(typeof(GHQSMSerializable));
 
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
@@ -111,13 +58,13 @@ namespace qf4net
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
 
-            serializer.Serialize(fs, hsm);
+            serializer.Serialize(fs, hsm.HSMData, ns);
 
 		}
 	
-        public GLQHSM LoadFromXML(string filePathName, bool bInit)
+        public GQHSM LoadFromXML(string filePathName, bool bInit)
         {
-            GLQHSM theHSM;
+            GQHSM theHSM;
 
             FileStream fs = new FileStream(filePathName, FileMode.Open);
             if (fs == null)
@@ -133,13 +80,13 @@ namespace qf4net
             return theHSM;
         }
 		
-        public GLQHSM LoadFromXML(string fileName, Stream fs, bool bInit)
+        public GQHSM LoadFromXML(string fileName, Stream fs, bool bInit)
         {
-            GLQHSM theHSM;
+            GQHSM theHSM;
 
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(GLQHSM));
+            XmlSerializer serializer = new XmlSerializer(typeof(GHQSMSerializable));
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
             // UnknownNode and UnknownAttribute events.
@@ -147,7 +94,8 @@ namespace qf4net
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
 
-            theHSM = (GLQHSM)serializer.Deserialize(fs);
+            theHSM = new GQHSM();
+			theHSM.HSMData = (GHQSMSerializable)serializer.Deserialize(fs);
 			theHSM.SetName(fileName);
             if (bInit)
             {
@@ -157,13 +105,13 @@ namespace qf4net
             return theHSM;
         }
 		
-        public GLQHSM LoadFromXML(string fileName, string sXML, bool bInit)
+        public GQHSM LoadFromXML(string fileName, string sXML, bool bInit)
         {
-            GLQHSM theHSM;
+            GQHSM theHSM;
 
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(GLQHSM));
+            XmlSerializer serializer = new XmlSerializer(typeof(GHQSMSerializable));
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
             // UnknownNode and UnknownAttribute events.
@@ -171,7 +119,8 @@ namespace qf4net
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
 			StringReader srXML = new StringReader(sXML);
-            theHSM = (GLQHSM)serializer.Deserialize(srXML);
+			theHSM = new GQHSM();
+            theHSM.HSMData = (GHQSMSerializable)serializer.Deserialize(srXML);
 			theHSM.SetName(fileName);
             if (bInit)
             {
@@ -211,121 +160,6 @@ namespace qf4net
         public void UnregisterHsm(ILQHsm hsm)
         {
             m_LifeCycleManager.UnregisterHsm(hsm);
-        }
-
-        // Allow other classes to register Action Handlers for StateMachine Actions OnEntry/OnExit
-        public void RegisterActionHandler(GQHSMHandler scHandler, string sMachineName, string sActionName, string sSignalType)
-        {
-            ActionHandlers actionHandlers;
-
-            if (!m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
-            {
-                actionHandlers = new ActionHandlers();
-                m_QHSMActionHandlers.Add(sMachineName, actionHandlers);
-            }
-
-            switch (sSignalType)
-            {
-                case QSignals.Entry:
-                    actionHandlers.ActionEntryMap.Add(sActionName, scHandler);
-                    break;
-                case QSignals.Exit:
-                    actionHandlers.ActionExitMap.Add(sActionName, scHandler);
-                    break;
-            }
-        }
-
-        public void CallActionHandler(string sMachineName, string sActionName, string sSignalType, object data)
-        {
-            List<GQHSMHandler> actionList = null;
-            ActionHandlers actionHandlers;
-
-            if (m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
-            {
-                switch (sSignalType)
-                {
-                    case QSignals.Entry:
-                        actionList = actionHandlers.ActionEntryMap[sActionName];
-                        break;
-                    case QSignals.Exit:
-                        actionList = actionHandlers.ActionExitMap[sActionName];
-                        break;
-                }
-
-                if (actionList != null)
-                {
-                    foreach (GQHSMHandler scHandler in actionList)
-                    {
-                       scHandler.Invoke(data);
-                    }
-
-                }
-
-            }
-        }
-
-        // Allow other classes to register transitions Handlers for StateMachine Transition events
-        public void RegisterTransitionHandler(GQHSMHandler tHandler, string sMachineName, string sTransitionName)
-        {
-            MultiMap<String, GQHSMHandler> transitionHandlers;
-
-            if (!m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
-            {
-                transitionHandlers = new MultiMap<String, GQHSMHandler>();
-                m_QHSMTransitionHandlers.Add(sMachineName, transitionHandlers);
-            }
-
-            transitionHandlers.Add(sTransitionName, tHandler);
-        }
-
-        public void CallTransitionHandler(string sMachineName, string sTransitionName, object data)
-        {
-            List<GQHSMHandler> transitionList = null;
-            MultiMap<String, GQHSMHandler> transitionHandlers;
-
-            if (m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
-            {
-                transitionList = transitionHandlers[sTransitionName];
-                foreach (GQHSMHandler tHandler in transitionList)
-                {
-                    tHandler.Invoke( data );
-                }
-
-            }
-        }
-
-        // Allow other classes to register guard Handlers for StateMachine guard checking
-        public void RegisterGuardHandler(GQHSMHandler gHandler, string sMachineName, string sGuardName)
-        {
-            MultiMap<String, GQHSMHandler> guardHandlers;
-
-            if (!m_QHSMGuardHandlers.TryGetValue(sMachineName, out guardHandlers))
-            {
-                guardHandlers = new MultiMap<String, GQHSMHandler>();
-                m_QHSMGuardHandlers.Add(sMachineName, guardHandlers);
-            }
-
-            guardHandlers.Add(sGuardName, gHandler);
-        }
-
-        public bool CallGuardHandler(string sMachineName, string sGuardCondition, object data)
-        {
-            List<GQHSMHandler> guardList = null;
-            MultiMap<String, GQHSMHandler> GQHSMHandlers;
-
-            if (m_QHSMGuardHandlers.TryGetValue(sMachineName, out GQHSMHandlers))
-            {
-                guardList = GQHSMHandlers[sGuardCondition];
-                foreach (GQHSMHandler gHandler in guardList)
-                {
-                    bool validated = (bool)gHandler.Invoke(data);
-                    if (validated)
-                        return true;
-                }
-
-            }
-
-            return false;
         }
 
         /// <summary>

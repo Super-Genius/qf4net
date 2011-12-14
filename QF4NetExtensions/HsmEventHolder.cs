@@ -28,9 +28,9 @@ namespace qf4net
 
         public void Execute()
         {
-#warning Going this route made calling to a command simpler in the QEventManagerBase
-#warning but has the overhead of this class instance having to hold an _EventManager field
-#warning and the overhead of the extra calls (cmd.Execute () calls back to EventManager.DispatchFromEventHolder ()).
+//#warning Going this route made calling to a command simpler in the QEventManagerBase
+//#warning but has the overhead of this class instance having to hold an _EventManager field
+//#warning and the overhead of the extra calls (cmd.Execute () calls back to EventManager.DispatchFromEventHolder ()).
 
             _EventManager.DispatchFromEventHolder (this);
         }

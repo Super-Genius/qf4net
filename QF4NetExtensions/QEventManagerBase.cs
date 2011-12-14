@@ -47,7 +47,7 @@ namespace qf4net
         {
             lock (_QLock)
             {
-#warning Using a stack will alway push the most recent event to the front - thus reversing instead of maintaining "insert" order
+//#warning Using a stack will alway push the most recent event to the front - thus reversing instead of maintaining "insert" order
                 HsmEventHolder holder = new HsmEventHolder (this, hsm, ev);
                 _FrontStack.Push (holder);
             }
