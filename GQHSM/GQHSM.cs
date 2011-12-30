@@ -48,6 +48,7 @@ namespace qf4net
         {
             public MultiMap<String, GQHSMHandler> ActionEntryMap = new MultiMap<String, GQHSMHandler>();
             public MultiMap<String, GQHSMHandler> ActionExitMap = new MultiMap<String, GQHSMHandler>();
+            public MultiMap<String, GQHSMHandler> ActionMap = new MultiMap<String, GQHSMHandler>();
         }
         private Dictionary<string, ActionHandlers> m_QHSMActionHandlers = new Dictionary<string, ActionHandlers>();
 
@@ -304,7 +305,10 @@ namespace qf4net
 				
 				_data = data;
 
-                DoTransitionTo(stateHandler, transition.GetSlot());
+                if (!transition.IsInnerTransition)
+                {
+                    DoTransitionTo(stateHandler, transition.GetSlot());
+                }
 				
 				_data = null;
 
@@ -543,6 +547,10 @@ namespace qf4net
                 case QSignals.Exit:
                     actionHandlers.ActionExitMap.Add(sActionName, scHandler);
                     break;
+                default:
+                    actionHandlers.ActionMap.Add(sActionName, scHandler);
+                    break;
+
             }
         }
 
