@@ -341,6 +341,11 @@ namespace qf4net
 
         }
 
+        public void SignalTransitionSync(string transitionName, object data)
+        {
+            Dispatch(new QEvent(transitionName, data));
+        }
+
         public bool GetGuardedTransition(string signalName, object data, ref GQHSMTransition transition)
         {
             List<GQHSMTransition> guardTansitions;
