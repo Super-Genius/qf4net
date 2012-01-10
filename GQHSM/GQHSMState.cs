@@ -12,39 +12,15 @@ using qf4net;
 
 namespace qf4net
 {
-	public class GQHSMState
+    public class GQHSMState : GQHSMGlyph
 	{
 
         private string[] _stateCommands;
         private QState _stateHandler;
-        private GQHSM _parentHSM;
         private string _fullName;       // fully qualified name, i.e.  State1.State2.State3, etc.
         private GQHSMState _parent;
         private GQHSMState _childStartState = null;
-
-		/// <summary>
-		/// The name of the State
-		/// </summary>
-		[XmlAttribute]
-		public string Name;
-
-		/// <summary>
-		/// The Guid of this state, good for better comparison
-		/// </summary>
-        [XmlAttribute]
-		public Guid Id;
-		
-		/// <summary>
-		/// if true, does not log and instrument the state
-		/// </summary>
-        [XmlAttribute]
-        public Boolean DoNotInstrument;
-		
-		/// <summary>
-		/// Any note for the state
-		/// </summary>
- 		public string Note;
-		
+				
 		/// <summary>
 		/// The parent identifier.
 		/// </summary>
@@ -99,27 +75,36 @@ namespace qf4net
 			_stateCommands = null;
         }
 
-        public void Init(GQHSM parentHSM, GQHSMState parent)
+        public override void PreInit(GQHSM parentHSM)
         {
-            _parentHSM = parentHSM;
-            _parent = parent;
-            _fullName = parentHSM.RegisterState(this);
-
-            _stateHandler = new QState(this, StateHandler, Name);
-
+            base.PreInit(parentHSM);
+            _fullName = _parentHSM.RegisterState(this);
             if (ChildStates != null)
             {
                 foreach (GQHSMState gs in ChildStates)
                 {
+                    gs.PreInit(parentHSM);
                     if (gs.IsStartState)
                     {
                         _childStartState = gs;
                     }
-
-                    gs.Init(parentHSM, this);
                 }
             }
 
+            _stateHandler = new QState(this, StateHandler, Name);
+        }
+
+        public void Init(GQHSMState parent)
+        {
+            base.Init();
+            _parent = parent;
+            if (ChildStates != null)
+            {
+                foreach (GQHSMState gs in ChildStates)
+                {
+                    gs.Init(this);
+                }
+            }
         }
 
         private GQHSMState GetChildStartState()
@@ -154,7 +139,7 @@ namespace qf4net
                         {
                             actionName = EntryAction;
                         }
-                        _parentHSM.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Entry, _parentHSM.GetData());
+                        _parentHSM.CallActionHandler(actionName, QSignals.Entry, _parentHSM.GetData());
                         _parentHSM.SetTimeOut(Id);
                     }
                     return null;
@@ -167,7 +152,7 @@ namespace qf4net
                         {
                             actionName = ExitAction;
                         }
-                       	_parentHSM.CallActionHandler(_parentHSM.GetName(), actionName, QSignals.Exit, _parentHSM.GetData());
+                       	_parentHSM.CallActionHandler(actionName, QSignals.Exit, _parentHSM.GetData());
                         _parentHSM.ClearTimeOut(Id);
                     }
                     return null;

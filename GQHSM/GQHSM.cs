@@ -6,59 +6,142 @@ using System.Collections.Generic;
 
 namespace qf4net
 {
-	[XmlRootAttribute(ElementName = "Glyphs", Namespace = "", DataType = "")]
-	public class GHQSMSerializable
-	{
+
+    public class StateMachineInfo
+    {
+        [XmlAttribute]
+        public string Name;
+
+        [XmlAttribute]
+        public Guid Id;
+
+        public string ImplementationVersion;
+
+        public string ModelFileName;
+
+        public bool HasSubMachines;
+
+        public int StateMachineVersion;
+
+        public string BaseStateMachine;
+
+        public string NameSpace;
+
+        public string UsingNameSpaces;
+
+        public string Comment;
+
+        public string Fields;
+
+        public bool ReadOnly;
+
+        public string Assembly;
+	}
+
+    public class Glyphs
+    {
         [XmlElement("StateGlyph")]
-        public GQHSMState[] m_States;
+        public GQHSMState[] States;
 
         [XmlElement("TransitionGlyph")]
-        public GQHSMTransition[] m_Transitions;
-	}
+        public GQHSMTransition[] Transitions;
+
+        [XmlElement("ComponentGlyph")]
+        public GQHSMComponent[] Components;
+
+        [XmlElement("PortLinkGlyph")]
+        public GQHSMPortLink[] PortLinks;
+
+        [XmlElement("StateTransitionPortGlyph")]
+        public GQHSMPort[] Ports;
+    }
+
+	[XmlRoot("StateMachine")]
+	public class StateMachine
+	{
+        private StateMachineInfo _stateMachineInfo;
+
+        public StateMachineInfo StateMachineInfo
+        {
+            get
+            {
+                return _stateMachineInfo;
+            }
+
+            set
+            {
+                _stateMachineInfo = value;
+            }
+        }
+
+        public Glyphs Glyphs;
+
+    }
 		
     public class GQHSM : LQHsm
     {
         private string _name;
 		private object _data = null;
 		private bool _instrument = false;
-		private GHQSMSerializable _hsmS;
+		private StateMachine _hsmS;
 		
-		private GQHSMState[] m_States
+		private GQHSMState[] States
 		{
 			get
 			{
-				return _hsmS.m_States;
+				return _hsmS.Glyphs.States;
 			}
 		}
 		
-		private GQHSMTransition[] m_Transitions
+		private GQHSMTransition[] Transitions
 		{
 			
 			get
 			{
-				return _hsmS.m_Transitions;
+				return _hsmS.Glyphs.Transitions;
 			}
 		}
-		
+
+        private GQHSMComponent[] Components
+        {
+
+            get
+            {
+                return _hsmS.Glyphs.Components;
+            }
+        }
+
+        private GQHSMPortLink[] PortLinks
+        {
+
+            get
+            {
+                return _hsmS.Glyphs.PortLinks;
+            }
+        }
+
+        private GQHSMPort[] Ports
+        {
+
+            get
+            {
+                return _hsmS.Glyphs.Ports;
+            }
+        }
+
         /// <summary>
         /// Action Handlers for HSMs
         /// </summary>
- 
-        private class ActionHandlers
-        {
-            public MultiMap<String, GQHSMHandler> ActionEntryMap = new MultiMap<String, GQHSMHandler>();
-            public MultiMap<String, GQHSMHandler> ActionExitMap = new MultiMap<String, GQHSMHandler>();
-            public MultiMap<String, GQHSMHandler> ActionMap = new MultiMap<String, GQHSMHandler>();
-        }
-        private Dictionary<string, ActionHandlers> m_QHSMActionHandlers = new Dictionary<string, ActionHandlers>();
+
+        public MultiMap<String, GQHSMHandler> m_ActionHandlersEntryMap = new MultiMap<String, GQHSMHandler>();
+        public MultiMap<String, GQHSMHandler> m_ActionHandlersExitMap = new MultiMap<String, GQHSMHandler>();
+        public MultiMap<String, GQHSMHandler> m_ActionHandlersMap = new MultiMap<String, GQHSMHandler>();
 
         /// transition change handlers for HSMs
-        //public MultiMap<String, GQHSMHandler> TransistionMap = new MultiMap<String, GQHSMHandler>();
-        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMTransitionHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
+        private MultiMap<String, GQHSMHandler> m_QHSMTransitionHandlers = new MultiMap<String, GQHSMHandler>();
 
         /// guard function delegates for HSMs
-        //public MultiMap<String, GQHSMHandler> GuardMap = new MultiMap<String, GQHSMHandler>();
-        private Dictionary<string, MultiMap<String, GQHSMHandler>> m_QHSMGuardHandlers = new Dictionary<string, MultiMap<String, GQHSMHandler>>();
+        private MultiMap<String, GQHSMHandler> m_QHSMGuardHandlers = new MultiMap<String, GQHSMHandler>();
 
 		/// <summary>
         /// Maps a GUID to a GHQMState
@@ -84,9 +167,27 @@ namespace qf4net
         /// </summary>
         private Dictionary<Guid, GQHSMTimeOut> _nameToTimeOutMap = new Dictionary<Guid, GQHSMTimeOut>();
 
+        /// <summary>
+        /// Single ports that mapped by name
+        /// </summary>
+        private Dictionary<string, GQHSMPort> _nameToPort = new Dictionary<string, GQHSMPort>();
+
+        /// <summary>
+        /// Multi Ports that are mapped my name
+        /// </summary>
+        private MultiMap<string, GQHSMPort> _nameToMultiPort = new MultiMap<string, GQHSMPort>();
+
+        /// <summary>
+        /// a list of ports that we sink in our transitions signals
+        /// </summary>
+        private List<string> Portsinks = new List<string>();
+
+        /// <summary>
+        /// the start state of the machine looked up on initialze when states are loading
+        /// </summary>
         private QState _startState;
 					
-		public GHQSMSerializable HSMData
+		public StateMachine HSMData
 		{
 			get	
 			{
@@ -170,24 +271,33 @@ namespace qf4net
         {
             return CurrentState;
         }
-		
+
+        public GQHSM(string fileName)
+        {
+            SetName(fileName);
+        }
+
         ~GQHSM()
         {
             GQHSMManager.Instance.UnregisterHsm(this);
 
         }
-		
-        public override void Init()
-        {		
-            GQHSMManager.Instance.RegisterHsm(this);
-			
-			//GQHSMManager.Instance.RegisterStateCommandHandler(theHSM.SetName(fileName);
 
-            if (m_States != null)
+        public void PreInit()
+        {
+            _startState = TopState;
+            if (_hsmS.StateMachineInfo.Name != null)
             {
-                foreach (GQHSMState gs in m_States)
+                _name = _hsmS.StateMachineInfo.Name;
+            }
+
+            GQHSMManager.Instance.RegisterHsm(this);
+
+            if (States != null)
+            {
+                foreach (GQHSMState gs in States)
                 {
-                    gs.Init(this, null);
+                    gs.PreInit(this);
                     if (gs.IsStartState)
                     {
                         _startState = gs.GetStateHandler();
@@ -195,16 +305,86 @@ namespace qf4net
                 }
             }
 
-            if (m_Transitions != null)
+            if (Transitions != null)
             {
-                foreach (GQHSMTransition gt in m_Transitions)
+                foreach (GQHSMTransition gt in Transitions)
                 {
-                    gt.Init(this, GetOpenSlot());
+                    gt.PreInit(this);
                 }
             }
 
-            base.Init();
+            if (Components != null)
+            {
+                foreach (GQHSMComponent gc in Components)
+                {
+                    gc.PreInit(this);
+                }
+            }
 
+            if (PortLinks != null)
+            {
+                foreach (GQHSMPortLink gpl in PortLinks)
+                {
+                    gpl.PreInit(this);
+                }
+            }
+
+            if (Ports != null)
+            {
+                foreach (GQHSMPort gp in Ports)
+                {
+                    gp.PreInit(this);
+                }
+            }
+
+        }
+
+        public override void Init()
+        {
+
+            // let states initialize now.
+            if (States != null)
+            {
+                foreach (GQHSMState gs in States)
+                {
+                    gs.Init(null);
+                }
+            }
+
+            if (Transitions != null)
+            {
+                foreach (GQHSMTransition gt in Transitions)
+                {
+                    gt.Init(GetOpenSlot());
+                }
+            }
+
+            if (Components != null)
+            {
+                foreach (GQHSMComponent gc in Components)
+                {
+                    gc.Init();
+                }
+            }
+
+            if (PortLinks != null)
+            {
+                foreach (GQHSMPortLink gpl in PortLinks)
+                {
+                    gpl.Init();
+                }
+            }
+
+            if (Ports != null)
+            {
+                foreach (GQHSMPort gp in Ports)
+                {
+                    gp.Init();
+                }
+            }
+
+            // init state machine after all objects are inited.
+            base.Init();
         }
 
 		public bool Instrument
@@ -236,11 +416,7 @@ namespace qf4net
 
         public void AddTransitionNameMap(GQHSMTransition transition)
         {
-            string tName = transition.EventSignal;
-            if (tName.Length == 0)
-            {
-                tName = transition.Name;
-            }
+            string tName = transition.GetFullName();
 
             // find state this transition is associated with
             GQHSMState state = GetState(transition.GetSourceStateID());
@@ -301,7 +477,7 @@ namespace qf4net
                 if (_instrument && !transition.DoNotInstrument)
                     LogStateEvent(StateLogType.EventTransition, GetCurrentState(), stateHandler, transition.Name, signalName);
 
-                CallTransitionHandler(_name, fullTransitionName, data);
+                CallTransitionHandler(fullTransitionName, data);
 				
 				_data = data;
 
@@ -354,7 +530,7 @@ namespace qf4net
             {
                 // we had a guard condition and handled the transition but guard may have failed
                 retValue = true;
-                if (CallGuardHandler(_name, gTransition.GuardCondition, data))
+                if (CallGuardHandler(gTransition.GuardCondition, data))
                 {
                     transition = gTransition;
                     return true;
@@ -488,13 +664,22 @@ namespace qf4net
 
 				if (timeOutExpression.IndexOf (" ") == -1)
 				{
+                    Single timeOut = 0.0f;
+                    if (!Single.TryParse(timeOutExpression, out timeOut))
+                    {
+                        object actionRet = CallActionHandler(timeOutExpression, "", null);
+                        if (actionRet != null)
+                        {
+                            timeOut = (float)actionRet;
+                        }
+                    }
                     RegisterTimeOutExpression(transition.GetSourceStateID(),
-                        new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(Convert.ToSingle(timeOutExpression)), new QEvent(eventSignal)));
+                        new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(timeOut), new QEvent(eventSignal)));
 				} 
 				else 
 				{
 					string[] strList = timeOutExpression.Split (' ');
-					string timeOut = strList [strList.Length - 1].Trim ();
+					string timeOutValue = strList [strList.Length - 1].Trim ();
                     TimeOutType flag = TimeOutType.Single;
 					if (timeOutExpression.StartsWith ("every"))
 					{
@@ -506,15 +691,25 @@ namespace qf4net
                         flag = TimeOutType.Single;
                         DateTime dt;
 
-                        dt = DateTime.Parse(timeOut);
+                        dt = DateTime.Parse(timeOutValue);
                         RegisterTimeOutExpression(transition.GetSourceStateID(),
                             new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), dt, new QEvent(eventSignal)));
 
 					} 
 					else 
 					{
+                        Single timeOut = 0.0f;
+                        if (!Single.TryParse(timeOutValue, out timeOut))
+                        {
+                            object actionRet = CallActionHandler(timeOutValue, "", null);
+                            if (actionRet != null)
+                            {
+                                timeOut = (float)actionRet;
+                            }
+                        }
+
                         RegisterTimeOutExpression(transition.GetSourceStateID(),
-                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(Convert.ToSingle(timeOut)), new QEvent(eventSignal), flag));
+                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(timeOut), new QEvent(eventSignal), flag));
 					}
 				}
         }
@@ -529,124 +724,166 @@ namespace qf4net
         }
 
         // Allow other classes to register Action Handlers for StateMachine Actions OnEntry/OnExit
-        public void RegisterActionHandler(GQHSMHandler scHandler, string sMachineName, string sActionName, string sSignalType)
+        public void RegisterActionHandler(GQHSMHandler scHandler, string sActionName, string sSignalType)
         {
-            ActionHandlers actionHandlers;
-
-            if (!m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
-            {
-                actionHandlers = new ActionHandlers();
-                m_QHSMActionHandlers.Add(sMachineName, actionHandlers);
-            }
-
             switch (sSignalType)
             {
                 case QSignals.Entry:
-                    actionHandlers.ActionEntryMap.Add(sActionName, scHandler);
+                    m_ActionHandlersEntryMap.Add(sActionName, scHandler);
                     break;
                 case QSignals.Exit:
-                    actionHandlers.ActionExitMap.Add(sActionName, scHandler);
+                    m_ActionHandlersExitMap.Add(sActionName, scHandler);
                     break;
                 default:
-                    actionHandlers.ActionMap.Add(sActionName, scHandler);
+                    m_ActionHandlersMap.Add(sActionName, scHandler);
                     break;
-
             }
         }
 
-        public void CallActionHandler(string sMachineName, string sActionName, string sSignalType, object data)
+        public object CallActionHandler(string sActionName, string sSignalType, object data)
         {
             List<GQHSMHandler> actionList = null;
-            ActionHandlers actionHandlers;
+            List<object> retObjects = new List<object>();
 
-            if (m_QHSMActionHandlers.TryGetValue(sMachineName, out actionHandlers))
+            string[] sActions = sActionName.Split(new string[] {"()"}, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string sNewAction in sActions)
             {
-                switch (sSignalType)
-                {
-                    case QSignals.Entry:
-                        actionList = actionHandlers.ActionEntryMap[sActionName];
-                        break;
-                    case QSignals.Exit:
-                        actionList = actionHandlers.ActionExitMap[sActionName];
-                        break;
-                }
 
-                if (actionList != null)
+                if (sNewAction.StartsWith("^"))
                 {
-                    foreach (GQHSMHandler scHandler in actionList)
+                    CallPortForward(sNewAction, sSignalType, data);
+                }
+                else
+                {
+                    switch (sSignalType)
                     {
-                       scHandler.Invoke(data);
+                        case QSignals.Entry:
+                            actionList = m_ActionHandlersEntryMap[sNewAction];
+                            break;
+                        case QSignals.Exit:
+                            actionList = m_ActionHandlersExitMap[sNewAction];
+                            break;
                     }
 
-                }
+                    if (actionList != null)
+                    {
+                        foreach (GQHSMHandler scHandler in actionList)
+                        {
+                            retObjects.Add(scHandler.Invoke(data));
+                        }
 
-            }
+                    }
+                }
+            } // foreach (string sNewAction in sActions)
+
+            if (retObjects.Count == 0)
+                return null;
+            if (retObjects.Count == 1)
+                return retObjects[0];
+
+            return retObjects.ToArray();
         }
 
         // Allow other classes to register transitions Handlers for StateMachine Transition events
-        public void RegisterTransitionHandler(GQHSMHandler tHandler, string sMachineName, string sTransitionName)
+        public void RegisterTransitionHandler(GQHSMHandler tHandler, string sTransitionName)
         {
-            MultiMap<String, GQHSMHandler> transitionHandlers;
-
-            if (!m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
-            {
-                transitionHandlers = new MultiMap<String, GQHSMHandler>();
-                m_QHSMTransitionHandlers.Add(sMachineName, transitionHandlers);
-            }
-
-            transitionHandlers.Add(sTransitionName, tHandler);
+            m_QHSMTransitionHandlers.Add(sTransitionName, tHandler);
         }
 
-        public void CallTransitionHandler(string sMachineName, string sTransitionName, object data)
+        public void CallTransitionHandler(string sTransitionName, object data)
         {
             List<GQHSMHandler> transitionList = null;
-            MultiMap<String, GQHSMHandler> transitionHandlers;
 
-            if (m_QHSMTransitionHandlers.TryGetValue(sMachineName, out transitionHandlers))
+            transitionList = m_QHSMTransitionHandlers[sTransitionName];
+            foreach (GQHSMHandler tHandler in transitionList)
             {
-                transitionList = transitionHandlers[sTransitionName];
-                foreach (GQHSMHandler tHandler in transitionList)
-                {
-                    tHandler.Invoke( data );
-                }
-
+                tHandler.Invoke( data );
             }
+
         }
 
         // Allow other classes to register guard Handlers for StateMachine guard checking
-        public void RegisterGuardHandler(GQHSMHandler gHandler, string sMachineName, string sGuardName)
+        public void RegisterGuardHandler(GQHSMHandler gHandler, string sGuardName)
         {
-            MultiMap<String, GQHSMHandler> guardHandlers;
-
-            if (!m_QHSMGuardHandlers.TryGetValue(sMachineName, out guardHandlers))
-            {
-                guardHandlers = new MultiMap<String, GQHSMHandler>();
-                m_QHSMGuardHandlers.Add(sMachineName, guardHandlers);
-            }
-
-            guardHandlers.Add(sGuardName, gHandler);
+            m_QHSMGuardHandlers.Add(sGuardName, gHandler);
         }
 
-        public bool CallGuardHandler(string sMachineName, string sGuardCondition, object data)
+        public bool CallGuardHandler(string sGuardCondition, object data)
         {
             List<GQHSMHandler> guardList = null;
-            MultiMap<String, GQHSMHandler> GQHSMHandlers;
 
-            if (m_QHSMGuardHandlers.TryGetValue(sMachineName, out GQHSMHandlers))
+            guardList = m_QHSMGuardHandlers[sGuardCondition];
+            foreach (GQHSMHandler gHandler in guardList)
             {
-                guardList = GQHSMHandlers[sGuardCondition];
-                foreach (GQHSMHandler gHandler in guardList)
-                {
-                    bool validated = (bool)gHandler.Invoke(data);
-                    if (validated)
-                        return true;
-                }
-
+                bool validated = (bool)gHandler.Invoke(data);
+                if (validated)
+                    return true;
             }
 
             return false;
         }
 
+        public void RegisterPort(GQHSMPort port)
+        {
+            if (port.IsMultiPort)
+            {
+                _nameToMultiPort.Add(port.Name, port);
+            }
+            else
+            {
+                if (!_nameToPort.ContainsKey(port.Name))
+                {
+                    _nameToPort.Add(port.Name, port);
+                }
+                else
+                {
+                    Logger.Error("Duplicate name in single ports {0}\n", port.Name);
+                }
+            } 
+        }
 
+        public void CallPortForward(string sActionName, string sSignalType, object data)
+        {
+            string[] splitS = sActionName.Split(new char[] { '^', '.'}, StringSplitOptions.RemoveEmptyEntries);
+            if (splitS.Length <= 1)
+            {
+                Logger.Error("Need Source port and Action, i.e. ^Sourceport.Action");
+                return;
+            }
+
+            // use port links to get destination port, if available
+            GQHSMPort gp = GetPort(splitS[0]);
+            if (gp != null)
+            {
+                gp.Port.Send(new QEvent(splitS[1], data));
+            }
+        }
+
+        public GQHSMPort GetPort(string portName)
+        {
+            if (_nameToPort.ContainsKey(portName))
+            {
+                return _nameToPort[portName];
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Send an action to a list of ports for this state machine.
+        /// </summary>
+        /// <param name="actionName">the string for the action, i.e. PortName.ActionName</param>
+        /// <param name="data">Generic data </param>
+        public void SendPortAction(string sourcePortName, string actionName, object data)
+        {
+            GQHSMPort destPort = GetPort(sourcePortName);
+            if (destPort != null)
+            {
+                QEvent ev = new QEvent(actionName, data);
+                destPort.Port.Receive(destPort.Port, ev);
+            }
+        }
     }
+
 }

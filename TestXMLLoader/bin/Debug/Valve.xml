@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StateMachine>
+  <StateMachineInfo Name="Valve" Id="c780d79b-93a2-4371-9f5e-6af910808d38">
+    <ImplementationVersion>0.2</ImplementationVersion>
+    <ModelFileName>Valve.sm1</ModelFileName>
+    <HasSubMachines>false</HasSubMachines>
+    <StateMachineVersion>7</StateMachineVersion>
+    <BaseStateMachine />
+    <NameSpace>Samples.Lighter</NameSpace>
+    <UsingNameSpaces />
+    <ReadOnly>true</ReadOnly>
+    <Comment />
+    <Assembly />
+  </StateMachineInfo>
+  <Glyphs>
+    <StateGlyph Name="Closed" Id="b74228b4-3e09-4efe-8104-a47ceb2bdccd" DoNotInstrument="false">
+      <Note />
+      <IsStartState>true</IsStartState>
+      <EntryAction>^FuelMixture.StopFlow()</EntryAction>
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateGlyph Name="Empty" Id="15879d47-c247-42f9-9a96-bdf585a58fa6" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction>^FuelMixture.StopFlow()</EntryAction>
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateGlyph Name="Open" Id="af04749c-0713-4593-9af0-2adbec6c28d0" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction>^FuelMixture.Mix(FlowValue)</EntryAction>
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateTransitionPortGlyph Name="User" Id="76e0ba76-b2f1-46ec-9bec-8fe23e38bab7" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="" Id="eb4453b2-5755-433c-a86b-943233c57030" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Empty</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+      <State>
+        <Id>15879d47-c247-42f9-9a96-bdf585a58fa6</Id>
+        <Name>Empty</Name>
+      </State>
+    </TransitionGlyph>
+    <StateTransitionPortGlyph Name="FuelMixture" Id="4355ad24-d6d9-42d4-809d-eaf3a2d3156b" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="" Id="6c6416d4-e02c-48a4-b2e5-2c7c0ff1d7e7" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Empty</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+      <State>
+        <Id>15879d47-c247-42f9-9a96-bdf585a58fa6</Id>
+        <Name>Empty</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="70c74c32-3868-41f5-a17d-29567f1626cb" DoNotInstrument="false">
+      <Note />
+      <EventSignal>DecreaseFlow</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action>ChangeFlowRate(-1)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="6df54736-dc0f-4645-93fa-5e8687daa092" DoNotInstrument="false">
+      <Note />
+      <EventSignal>DecreaseFlow</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action>ChangeFlowRate(-1)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="6ae48d08-63a9-4c08-8982-81596d6f1603" DoNotInstrument="false">
+      <Note />
+      <EventSignal>IncreaseFlow</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action>ChangeFlowRate(1)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="bca7caec-7b42-4ed1-b8ea-f0e712a15498" DoNotInstrument="false">
+      <Note />
+      <EventSignal>IncreaseFlow</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action>ChangeFlowRate(1)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="f4ae2f88-4868-4e42-be85-34f2d2e4798d" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Press</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="318890e3-1210-4944-9af9-350e74bed670" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Release</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>af04749c-0713-4593-9af0-2adbec6c28d0</Id>
+        <Name>Open</Name>
+      </State>
+      <State>
+        <Id>b74228b4-3e09-4efe-8104-a47ceb2bdccd</Id>
+        <Name>Closed</Name>
+      </State>
+    </TransitionGlyph>
+  </Glyphs>
+</StateMachine>

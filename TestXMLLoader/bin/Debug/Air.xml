@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StateMachine>
+  <StateMachineInfo Name="Air" Id="a82cbd8f-bbcf-4935-a04f-c1dfc68fa492">
+    <ImplementationVersion>0.2</ImplementationVersion>
+    <ModelFileName>Air.sm1</ModelFileName>
+    <HasSubMachines>false</HasSubMachines>
+    <StateMachineVersion>6</StateMachineVersion>
+    <BaseStateMachine />
+    <NameSpace>Samples.Lighter</NameSpace>
+    <UsingNameSpaces />
+    <ReadOnly>true</ReadOnly>
+    <Comment />
+    <Assembly />
+  </StateMachineInfo>
+  <Glyphs>
+    <StateGlyph Name="Moving" Id="36be0f6f-1056-4285-ad5a-103ba3319753" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction />
+      <ExitAction />
+      <StateCommands />
+      <StateGlyph Name="Gusting" Id="0dac6502-d5fb-40dd-b5e8-f5aec3bebabc" DoNotInstrument="false">
+        <Note />
+        <ParentId>36be0f6f-1056-4285-ad5a-103ba3319753</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction />
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+      <StateGlyph Name="Draft" Id="b509f24d-ad81-4be9-9fbe-f1af96e85758" DoNotInstrument="false">
+        <Note />
+        <ParentId>36be0f6f-1056-4285-ad5a-103ba3319753</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction>^FuelMixture.Flow(FlowRate)</EntryAction>
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+    </StateGlyph>
+    <StateGlyph Name="Still" Id="a546e2f0-6470-44db-8dde-9f37a3cf48e4" DoNotInstrument="false">
+      <Note />
+      <IsStartState>true</IsStartState>
+      <EntryAction>SetFlowToZero()
+^FuelMixture.Flow(FlowRate)</EntryAction>
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <TransitionGlyph Name="t1" Id="f1bb0c47-ad1b-47be-94ee-bd4b1e013d61" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Draft</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action>RandomlyChangeFlowRate()</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>every RandomDraftInterval()</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b509f24d-ad81-4be9-9fbe-f1af96e85758</Id>
+        <Name>Draft</Name>
+      </State>
+      <State>
+        <Id>b509f24d-ad81-4be9-9fbe-f1af96e85758</Id>
+        <Name>Draft</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="06b3d714-6783-4d29-b2e2-c7bd96a9b9b0" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Gust</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action>^FuelMixture.Gust(RandomGustRate)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>0dac6502-d5fb-40dd-b5e8-f5aec3bebabc</Id>
+        <Name>Gusting</Name>
+      </State>
+      <State>
+        <Id>0dac6502-d5fb-40dd-b5e8-f5aec3bebabc</Id>
+        <Name>Gusting</Name>
+      </State>
+    </TransitionGlyph>
+    <StateTransitionPortGlyph Name="FuelMixture" Id="8f19c9f7-0ab1-4cfd-8962-efcb7b4b7ab6" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="t0" Id="78da05eb-6ec5-47ed-97dc-00ade25c1f4d" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Gust</EventSignal>
+      <EventSource />
+      <GuardCondition>JustChangeFlowRate()</GuardCondition>
+      <Action>RandomlyChangeGustFlowRate()
+^FuelMixture.Flow(FlowRate)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>every RandomGustInterval()</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>0dac6502-d5fb-40dd-b5e8-f5aec3bebabc</Id>
+        <Name>Gusting</Name>
+      </State>
+      <State>
+        <Id>0dac6502-d5fb-40dd-b5e8-f5aec3bebabc</Id>
+        <Name>Gusting</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="02ea8cfc-6c42-4171-af85-fdfeb5b0e043" DoNotInstrument="false">
+      <Note />
+      <EventSignal>PressureDecrease</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>0dac6502-d5fb-40dd-b5e8-f5aec3bebabc</Id>
+        <Name>Gusting</Name>
+      </State>
+      <State>
+        <Id>b509f24d-ad81-4be9-9fbe-f1af96e85758</Id>
+        <Name>Draft</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="5cb3719e-38ca-4ad6-a7e7-83ab4924e592" DoNotInstrument="false">
+      <Note />
+      <EventSignal>PressureDecrease</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b509f24d-ad81-4be9-9fbe-f1af96e85758</Id>
+        <Name>Draft</Name>
+      </State>
+      <State>
+        <Id>a546e2f0-6470-44db-8dde-9f37a3cf48e4</Id>
+        <Name>Still</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="b16d3e23-05ab-4e98-ac53-f4c56a21ad7f" DoNotInstrument="false">
+      <Note />
+      <EventSignal>PressureIncrease</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>b509f24d-ad81-4be9-9fbe-f1af96e85758</Id>
+        <Name>Draft</Name>
+      </State>
+      <State>
+        <Id>0dac6502-d5fb-40dd-b5e8-f5aec3bebabc</Id>
+        <Name>Gusting</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="4aca1295-a960-4639-85fd-119e0456c5a7" DoNotInstrument="false">
+      <Note />
+      <EventSignal>PressureIncrease</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>a546e2f0-6470-44db-8dde-9f37a3cf48e4</Id>
+        <Name>Still</Name>
+      </State>
+      <State>
+        <Id>b509f24d-ad81-4be9-9fbe-f1af96e85758</Id>
+        <Name>Draft</Name>
+      </State>
+    </TransitionGlyph>
+  </Glyphs>
+</StateMachine>

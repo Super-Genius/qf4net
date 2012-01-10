@@ -390,13 +390,13 @@ namespace qf4net
 			return sv;
 		}
 
-		protected virtual IQMultiPort CreateMultiPort (string name)
+		public virtual IQMultiPort CreateMultiPort (string name)
 		{
 			IQMultiPort port = new QMultiPort (name, this); 
 			return port;
 		}
 
-		protected virtual IQPort CreatePort (string name)
+		public virtual IQPort CreatePort (string name)
 		{
 			IQPort port = new QPort (name, this); 
 			return port;

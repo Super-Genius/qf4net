@@ -760,11 +760,11 @@ namespace qf4net
 		/// </summary>
 		private class TransitionChainRecorder
 		{
-			private ArrayList m_TransitionSteps = new ArrayList();
+			private ArrayList Transitionsteps = new ArrayList();
 
 			internal void Record(QState state, string qSignal)
 			{
-				m_TransitionSteps.Add(new TransitionStep(state, qSignal));
+				Transitionsteps.Add(new TransitionStep(state, qSignal));
 			}
 
 			/// <summary>
@@ -774,7 +774,7 @@ namespace qf4net
 			internal TransitionChain GetRecordedTransitionChain()
 			{
 				// We turn the ArrayList into a strongly typed array
-				return new TransitionChain(m_TransitionSteps);
+				return new TransitionChain(Transitionsteps);
 			}
 		}
 

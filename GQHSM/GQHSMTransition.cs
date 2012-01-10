@@ -1,26 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using qf4net;
 
 namespace qf4net
 {
-    [Serializable]
-    public class GQHSMTransition
+    public class GQHSMTransition : GQHSMGlyph
     {
 
         private GQHSMTransitionState[] _transitionStates;
-        private GQHSM _parentHSM;
         private int _slot;
-
-
-        [XmlAttribute]
-        public string Name;
-        [XmlAttribute]
-        public Guid Id;
-        [XmlAttribute]
-        public Boolean DoNotInstrument;
-
-        public string Note;
 
         public string EventSignal;
 
@@ -68,15 +57,21 @@ namespace qf4net
             TransitionType = eTransitionType.Normal;
         }
 
-        public void Init(GQHSM parentHSM, int slot)
+        public override void PreInit(GQHSM parentHSM)
         {
-            _parentHSM = parentHSM;
+            base.PreInit(parentHSM);
+            _parentHSM.RegisterTransition(this);
+        }
+
+        public void Init(int slot)
+        {
+            base.Init();
             _slot = slot;
-            parentHSM.RegisterTransition(this);
             if (TimeOutExpression.Length > 0)
             {
-                parentHSM.RegisterTimeOutExpression(this, TimeOutExpression);
+                _parentHSM.RegisterTimeOutExpression(this, TimeOutExpression);
             }
+
         }
 
         public Guid GetSourceStateID()
@@ -98,16 +93,23 @@ namespace qf4net
         {
             string retS = EventSignal;
 
-            if (Name.Length > 0)
+            // default to Name if Event Signal isn't there.
+            if (EventSignal.Length == 0)
             {
-                if (EventSignal.Length > 0)
+                if (Name.Length == 0)
                 {
-                    retS = Name + "." + EventSignal;
+                    retS = "UNKNOWN";
                 }
                 else
                 {
                     retS = Name;
                 }
+            }
+
+            // if source is specified prepend it to signal name
+            if (EventSource.Length > 0)
+            {
+                retS = EventSource + "." + retS;
             }
 
             return retS;
@@ -116,7 +118,6 @@ namespace qf4net
 
     }
 
-    [Serializable]
     public class GQHSMTransitionState
     {
         public Guid Id;

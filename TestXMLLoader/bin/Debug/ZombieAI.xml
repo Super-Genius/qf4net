@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StateMachine>
+  <StateMachineInfo Name="ZombieAI" Id="28b0b889-c4dc-46f7-966b-531227eec507">
+    <ImplementationVersion>0.2</ImplementationVersion>
+    <ModelFileName>ZombieAI.sm1</ModelFileName>
+    <HasSubMachines>false</HasSubMachines>
+    <StateMachineVersion>85</StateMachineVersion>
+    <BaseStateMachine />
+    <NameSpace>MurphyPA.SM</NameSpace>
+    <UsingNameSpaces />
+    <ReadOnly>true</ReadOnly>
+    <Comment />
+    <Assembly />
+  </StateMachineInfo>
+  <Glyphs>
+    <StateGlyph Name="CaughtPlayer" Id="ab04edf7-e076-4f0c-9eb2-f8a85849b4c0" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction>OnCaughtPlayer()</EntryAction>
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateGlyph Name="ChasingPlayer" Id="6fcf5689-4829-4fe0-a735-fed6e7fa3f1f" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction>MovePath()</EntryAction>
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateGlyph Name="Falling" Id="99786ef9-7b55-407e-8ba1-8d2e043d4bc5" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction>Falling()</EntryAction>
+      <ExitAction />
+      <StateCommands />
+      <StateGlyph Name="EnteredFallThrough" Id="fec680c4-bdd6-4393-bf3e-361a20f3a8cb" DoNotInstrument="false">
+        <Note />
+        <ParentId>99786ef9-7b55-407e-8ba1-8d2e043d4bc5</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction />
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+    </StateGlyph>
+    <StateGlyph Name="Idle" Id="50448a8a-4fca-4b14-814c-686bdeadd715" DoNotInstrument="false">
+      <Note />
+      <IsStartState>true</IsStartState>
+      <EntryAction>OnIdle()</EntryAction>
+      <ExitAction />
+      <StateCommands>
+        <Command>KenWasHere()</Command>
+      </StateCommands>
+      <StateGlyph Name="Searching" Id="938a4087-12da-423e-b39b-f3e3ac8ac1ea" DoNotInstrument="false">
+        <Note />
+        <ParentId>50448a8a-4fca-4b14-814c-686bdeadd715</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction>Searching()</EntryAction>
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+      <StateGlyph Name="BehindDoor" Id="3f78ad2b-f107-429c-931b-44ad0e3723d9" DoNotInstrument="false">
+        <Note />
+        <ParentId>50448a8a-4fca-4b14-814c-686bdeadd715</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction />
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+    </StateGlyph>
+    <StateGlyph Name="InHole" Id="5086f301-8293-4c00-b0d5-5504f05a547e" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction>InHole()</EntryAction>
+      <ExitAction />
+      <StateCommands />
+      <StateGlyph Name="ClimbingOut" Id="db025cee-bf9f-4ac8-9ff5-c890e8591f4f" DoNotInstrument="false">
+        <Note />
+        <ParentId>5086f301-8293-4c00-b0d5-5504f05a547e</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction>OnClimbingOut()</EntryAction>
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+      <StateGlyph Name="HangingOn" Id="d9526475-275d-45bc-a333-0ceb801977c4" DoNotInstrument="false">
+        <Note />
+        <ParentId>5086f301-8293-4c00-b0d5-5504f05a547e</ParentId>
+        <IsStartState>true</IsStartState>
+        <EntryAction />
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+    </StateGlyph>
+    <TransitionGlyph Name="" Id="f5bfeef7-402f-4c5f-9532-ddce08b4353a" DoNotInstrument="false">
+      <Note />
+      <EventSignal>DoorOpened</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>3f78ad2b-f107-429c-931b-44ad0e3723d9</Id>
+        <Name>BehindDoor</Name>
+      </State>
+      <State>
+        <Id>938a4087-12da-423e-b39b-f3e3ac8ac1ea</Id>
+        <Name>Searching</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="CheckPath" Id="79a38aa8-f906-47e8-99ee-89cea5b2e3b9" DoNotInstrument="false">
+      <Note />
+      <EventSignal>EndOfPath</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>6fcf5689-4829-4fe0-a735-fed6e7fa3f1f</Id>
+        <Name>ChasingPlayer</Name>
+      </State>
+      <State>
+        <Id>50448a8a-4fca-4b14-814c-686bdeadd715</Id>
+        <Name>Idle</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="IdleBehindDoor" Id="9c328209-6789-4b07-89ae-d73a6f2ff5d2" DoNotInstrument="false">
+      <Note />
+      <EventSignal>IdleType</EventSignal>
+      <EventSource />
+      <GuardCondition>IsBehindDoor()</GuardCondition>
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>0</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>50448a8a-4fca-4b14-814c-686bdeadd715</Id>
+        <Name>Idle</Name>
+      </State>
+      <State>
+        <Id>3f78ad2b-f107-429c-931b-44ad0e3723d9</Id>
+        <Name>BehindDoor</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="1f46aae5-2bbe-47cf-ac4f-a4ee3c9694b8" DoNotInstrument="false">
+      <Note />
+      <EventSignal>IdleType</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>50448a8a-4fca-4b14-814c-686bdeadd715</Id>
+        <Name>Idle</Name>
+      </State>
+      <State>
+        <Id>938a4087-12da-423e-b39b-f3e3ac8ac1ea</Id>
+        <Name>Searching</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="DeterminePath" Id="4aaff1be-3c59-4c17-b6ac-05b62ca3b45e" DoNotInstrument="false">
+      <Note />
+      <EventSignal>PathToPlayer</EventSignal>
+      <EventSource />
+      <GuardCondition>PathToPlayer()</GuardCondition>
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>every .1</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>938a4087-12da-423e-b39b-f3e3ac8ac1ea</Id>
+        <Name>Searching</Name>
+      </State>
+      <State>
+        <Id>6fcf5689-4829-4fe0-a735-fed6e7fa3f1f</Id>
+        <Name>ChasingPlayer</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="TimeOutClimbing" Id="87bcad81-7ae3-4d70-bca3-98e41f02564d" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Timeout</EventSignal>
+      <EventSource />
+      <GuardCondition>RandomRemain(5)</GuardCondition>
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>3.0</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>d9526475-275d-45bc-a333-0ceb801977c4</Id>
+        <Name>HangingOn</Name>
+      </State>
+      <State>
+        <Id>db025cee-bf9f-4ac8-9ff5-c890e8591f4f</Id>
+        <Name>ClimbingOut</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="TimeOutFalling" Id="3996a2f7-bf3b-4182-ac88-e7d37f135ab0" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Timeout</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>d9526475-275d-45bc-a333-0ceb801977c4</Id>
+        <Name>HangingOn</Name>
+      </State>
+      <State>
+        <Id>99786ef9-7b55-407e-8ba1-8d2e043d4bc5</Id>
+        <Name>Falling</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="f94cb7e4-cadf-46b5-9ac4-3c98650bcdd6" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.ClimbedOut</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>db025cee-bf9f-4ac8-9ff5-c890e8591f4f</Id>
+        <Name>ClimbingOut</Name>
+      </State>
+      <State>
+        <Id>50448a8a-4fca-4b14-814c-686bdeadd715</Id>
+        <Name>Idle</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="5786928e-e5f5-4827-9558-20f67330d52f" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.Falling</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>6fcf5689-4829-4fe0-a735-fed6e7fa3f1f</Id>
+        <Name>ChasingPlayer</Name>
+      </State>
+      <State>
+        <Id>99786ef9-7b55-407e-8ba1-8d2e043d4bc5</Id>
+        <Name>Falling</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="86fa3602-cf92-445d-9542-d16c8f675de0" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.FallThroughEnter.Enter</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>99786ef9-7b55-407e-8ba1-8d2e043d4bc5</Id>
+        <Name>Falling</Name>
+      </State>
+      <State>
+        <Id>fec680c4-bdd6-4393-bf3e-361a20f3a8cb</Id>
+        <Name>EnteredFallThrough</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="53213853-9569-4f1c-8f42-ad8924ab5ea0" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.FallThroughEnter.Enter</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>6fcf5689-4829-4fe0-a735-fed6e7fa3f1f</Id>
+        <Name>ChasingPlayer</Name>
+      </State>
+      <State>
+        <Id>5086f301-8293-4c00-b0d5-5504f05a547e</Id>
+        <Name>InHole</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="94994289-951e-4d24-9069-a49a2f123faa" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.OnGround</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>fec680c4-bdd6-4393-bf3e-361a20f3a8cb</Id>
+        <Name>EnteredFallThrough</Name>
+      </State>
+      <State>
+        <Id>5086f301-8293-4c00-b0d5-5504f05a547e</Id>
+        <Name>InHole</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="f7c72b92-541b-4d43-9770-1ebc99267691" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.OnGround</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>99786ef9-7b55-407e-8ba1-8d2e043d4bc5</Id>
+        <Name>Falling</Name>
+      </State>
+      <State>
+        <Id>50448a8a-4fca-4b14-814c-686bdeadd715</Id>
+        <Name>Idle</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="c2719420-dcff-4496-b98e-c26c3204edad" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Trigger.Player.Enter</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>6fcf5689-4829-4fe0-a735-fed6e7fa3f1f</Id>
+        <Name>ChasingPlayer</Name>
+      </State>
+      <State>
+        <Id>ab04edf7-e076-4f0c-9eb2-f8a85849b4c0</Id>
+        <Name>CaughtPlayer</Name>
+      </State>
+    </TransitionGlyph>
+  </Glyphs>
+</StateMachine>

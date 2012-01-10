@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StateMachine>
+  <StateMachineInfo Name="FuelMixture" Id="2ae9adcd-2338-4285-bd32-89f3fcdf7965">
+    <ImplementationVersion>0.2</ImplementationVersion>
+    <ModelFileName>FuelMixture.sm1</ModelFileName>
+    <HasSubMachines>false</HasSubMachines>
+    <StateMachineVersion>5</StateMachineVersion>
+    <BaseStateMachine />
+    <NameSpace>Samples.Lighter</NameSpace>
+    <UsingNameSpaces />
+    <ReadOnly>true</ReadOnly>
+    <Comment />
+    <Assembly />
+  </StateMachineInfo>
+  <Glyphs>
+    <StateGlyph Name="Active" Id="baac2bd1-3319-4cfd-ac4f-8678b9945ff0" DoNotInstrument="false">
+      <Note />
+      <IsStartState>true</IsStartState>
+      <EntryAction />
+      <ExitAction />
+      <StateCommands />
+      <StateGlyph Name="FuelSupplied" Id="458306e2-d501-40db-9606-f7af8fbd9587" DoNotInstrument="false">
+        <Note />
+        <ParentId>baac2bd1-3319-4cfd-ac4f-8678b9945ff0</ParentId>
+        <IsStartState>false</IsStartState>
+        <EntryAction />
+        <ExitAction />
+        <StateCommands />
+        <StateGlyph Name="Mixed" Id="5ec81ab1-3ead-4e6a-9c7f-1b9fa3278076" DoNotInstrument="false">
+          <Note />
+          <ParentId>458306e2-d501-40db-9606-f7af8fbd9587</ParentId>
+          <IsStartState>false</IsStartState>
+          <EntryAction />
+          <ExitAction />
+          <StateCommands />
+        </StateGlyph>
+        <StateGlyph Name="TemporarilyNoFuel" Id="53819d3a-2896-4fb8-8cd1-3b0739f3ab0c" DoNotInstrument="false">
+          <Note />
+          <ParentId>458306e2-d501-40db-9606-f7af8fbd9587</ParentId>
+          <IsStartState>false</IsStartState>
+          <EntryAction />
+          <ExitAction />
+          <StateCommands />
+        </StateGlyph>
+        <StateGlyph Name="Burning" Id="068aebbc-a015-4bec-8140-c290824f8d50" DoNotInstrument="false">
+          <Note />
+          <ParentId>458306e2-d501-40db-9606-f7af8fbd9587</ParentId>
+          <IsStartState>false</IsStartState>
+          <EntryAction />
+          <ExitAction />
+          <StateCommands />
+        </StateGlyph>
+      </StateGlyph>
+      <StateGlyph Name="NoFuel" Id="ce01ce0d-cdcd-47a4-ae3d-4818451a11cf" DoNotInstrument="false">
+        <Note />
+        <ParentId>baac2bd1-3319-4cfd-ac4f-8678b9945ff0</ParentId>
+        <IsStartState>true</IsStartState>
+        <EntryAction />
+        <ExitAction />
+        <StateCommands />
+      </StateGlyph>
+    </StateGlyph>
+    <TransitionGlyph Name="" Id="730fb30d-b577-48a9-b814-a54357e3dd8f" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Flow</EventSignal>
+      <EventSource>Air</EventSource>
+      <GuardCondition />
+      <Action>DissipateFuel(ev)
+TestRates()</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>true</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>baac2bd1-3319-4cfd-ac4f-8678b9945ff0</Id>
+        <Name>Active</Name>
+      </State>
+      <State>
+        <Id>baac2bd1-3319-4cfd-ac4f-8678b9945ff0</Id>
+        <Name>Active</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="c3b2f618-a675-41d4-8868-0aae7d2e4075" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Gust</EventSignal>
+      <EventSource>Air</EventSource>
+      <GuardCondition />
+      <Action>SetLastGust(ev)</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>5ec81ab1-3ead-4e6a-9c7f-1b9fa3278076</Id>
+        <Name>Mixed</Name>
+      </State>
+      <State>
+        <Id>53819d3a-2896-4fb8-8cd1-3b0739f3ab0c</Id>
+        <Name>TemporarilyNoFuel</Name>
+      </State>
+    </TransitionGlyph>
+    <StateTransitionPortGlyph Name="Air" Id="bbdf1324-ed16-455f-8da0-046d0c7d8c0f" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="" Id="94f550b7-1a10-406f-a87e-d5337684fc15" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Gust</EventSignal>
+      <EventSource>Air</EventSource>
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>068aebbc-a015-4bec-8140-c290824f8d50</Id>
+        <Name>Burning</Name>
+      </State>
+      <State>
+        <Id>53819d3a-2896-4fb8-8cd1-3b0739f3ab0c</Id>
+        <Name>TemporarilyNoFuel</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="t0" Id="b0d45fce-24f6-4074-95e9-d04093ab024b" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Gust</EventSignal>
+      <EventSource>Air</EventSource>
+      <GuardCondition>FuelFlowIsStrongEnough(ev)</GuardCondition>
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>068aebbc-a015-4bec-8140-c290824f8d50</Id>
+        <Name>Burning</Name>
+      </State>
+      <State>
+        <Id>068aebbc-a015-4bec-8140-c290824f8d50</Id>
+        <Name>Burning</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="07a257ee-6772-483f-8987-ae9679db54f9" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Ignite</EventSignal>
+      <EventSource>Flint</EventSource>
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>5ec81ab1-3ead-4e6a-9c7f-1b9fa3278076</Id>
+        <Name>Mixed</Name>
+      </State>
+      <State>
+        <Id>068aebbc-a015-4bec-8140-c290824f8d50</Id>
+        <Name>Burning</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="8fb5d2b9-8ae1-454d-8971-6d18ac810e31" DoNotInstrument="false">
+      <Note />
+      <EventSignal>FuelDissipated</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>458306e2-d501-40db-9606-f7af8fbd9587</Id>
+        <Name>FuelSupplied</Name>
+      </State>
+      <State>
+        <Id>ce01ce0d-cdcd-47a4-ae3d-4818451a11cf</Id>
+        <Name>NoFuel</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="" Id="d95fdc9c-3b73-411e-aa41-0e63f5bd6200" DoNotInstrument="false">
+      <Note />
+      <EventSignal>FuelInMixture</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>ce01ce0d-cdcd-47a4-ae3d-4818451a11cf</Id>
+        <Name>NoFuel</Name>
+      </State>
+      <State>
+        <Id>5ec81ab1-3ead-4e6a-9c7f-1b9fa3278076</Id>
+        <Name>Mixed</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="t0" Id="b3122a04-7f65-4e33-8f31-c2bbdc2c57de" DoNotInstrument="false">
+      <Note />
+      <EventSignal>FuelReplenished</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>after 1</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>53819d3a-2896-4fb8-8cd1-3b0739f3ab0c</Id>
+        <Name>TemporarilyNoFuel</Name>
+      </State>
+      <State>
+        <Id>5ec81ab1-3ead-4e6a-9c7f-1b9fa3278076</Id>
+        <Name>Mixed</Name>
+      </State>
+    </TransitionGlyph>
+    <StateTransitionPortGlyph Name="Valve" Id="880594a7-f11c-4ed5-9914-251ee54339c6" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="" Id="1b90f5f2-060b-402c-9439-9232912c2979" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Mix</EventSignal>
+      <EventSource>Valve</EventSource>
+      <GuardCondition />
+      <Action>MixFuel(ev)
+TestRates()</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>true</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>baac2bd1-3319-4cfd-ac4f-8678b9945ff0</Id>
+        <Name>Active</Name>
+      </State>
+      <State>
+        <Id>baac2bd1-3319-4cfd-ac4f-8678b9945ff0</Id>
+        <Name>Active</Name>
+      </State>
+    </TransitionGlyph>
+    <StateTransitionPortGlyph Name="Flint" Id="e1c791c8-d662-48bd-8826-15529324b0ad" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="" Id="111ad4e5-8afa-482b-be00-8afd8937b00a" DoNotInstrument="false">
+      <Note />
+      <EventSignal>StopFlow</EventSignal>
+      <EventSource>Valve</EventSource>
+      <GuardCondition />
+      <Action>StopFlow()</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>458306e2-d501-40db-9606-f7af8fbd9587</Id>
+        <Name>FuelSupplied</Name>
+      </State>
+      <State>
+        <Id>ce01ce0d-cdcd-47a4-ae3d-4818451a11cf</Id>
+        <Name>NoFuel</Name>
+      </State>
+    </TransitionGlyph>
+  </Glyphs>
+</StateMachine>

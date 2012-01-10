@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StateMachine>
+  <StateMachineInfo Name="" Id="abc51f77-b4c2-4324-ae2b-7b4ef94cb120">
+    <ImplementationVersion>0.2</ImplementationVersion>
+    <ModelFileName>LighterFrame.sm1</ModelFileName>
+    <HasSubMachines>false</HasSubMachines>
+    <StateMachineVersion>7</StateMachineVersion>
+    <BaseStateMachine />
+    <NameSpace>MurphyPA.SM</NameSpace>
+    <UsingNameSpaces />
+    <ReadOnly>true</ReadOnly>
+    <Comment />
+    <Assembly />
+  </StateMachineInfo>
+  <Glyphs>
+    <PortLinkGlyph Name="P" Id="6c81dd1f-9c9f-45eb-b234-4ae7d7a006d8" DoNotInstrument="false">
+      <Note />
+      <FromPortName>FuelMixture</FromPortName>
+      <SendIndex />
+      <ToPortName>Valve</ToPortName>
+      <Component>
+        <Id>239269e2-d3e5-4b24-9db9-6896147165fe</Id>
+        <Name>Valve</Name>
+      </Component>
+      <Component>
+        <Id>dee0ba62-e6c9-4388-809c-ddaf004ef21e</Id>
+        <Name>FuelMixture</Name>
+      </Component>
+    </PortLinkGlyph>
+    <PortLinkGlyph Name="U" Id="f03b6cc5-f2a8-4daa-87c1-1659c3fe45b8" DoNotInstrument="false">
+      <Note />
+      <FromPortName>Frame</FromPortName>
+      <SendIndex />
+      <ToPortName>User</ToPortName>
+      <Component>
+        <Id>552c74d9-7c41-4065-82d1-a81ad807941a</Id>
+        <Name>Frame</Name>
+      </Component>
+      <Component>
+        <Id>d2c655ce-a1d6-4f1f-8183-ba12f54da414</Id>
+        <Name>Flint</Name>
+      </Component>
+    </PortLinkGlyph>
+    <PortLinkGlyph Name="P" Id="ff38a0f3-925b-4079-adaa-042c149af653" DoNotInstrument="false">
+      <Note />
+      <FromPortName>FuelMixture</FromPortName>
+      <SendIndex />
+      <ToPortName>Air</ToPortName>
+      <Component>
+        <Id>be0cb7c7-5ef8-4b3e-8e9c-07a38b1a35f5</Id>
+        <Name>Air</Name>
+      </Component>
+      <Component>
+        <Id>dee0ba62-e6c9-4388-809c-ddaf004ef21e</Id>
+        <Name>FuelMixture</Name>
+      </Component>
+    </PortLinkGlyph>
+    <PortLinkGlyph Name="U" Id="3afc8898-d7b0-4143-9934-5cd5a98d20f5" DoNotInstrument="false">
+      <Note />
+      <FromPortName>Frame</FromPortName>
+      <SendIndex />
+      <ToPortName>User</ToPortName>
+      <Component>
+        <Id>552c74d9-7c41-4065-82d1-a81ad807941a</Id>
+        <Name>Frame</Name>
+      </Component>
+      <Component>
+        <Id>239269e2-d3e5-4b24-9db9-6896147165fe</Id>
+        <Name>Valve</Name>
+      </Component>
+    </PortLinkGlyph>
+    <PortLinkGlyph Name="P" Id="8a183f97-88d0-4b8b-bf43-0f1f842f13c1" DoNotInstrument="false">
+      <Note />
+      <FromPortName>FuelMixture</FromPortName>
+      <SendIndex />
+      <ToPortName>Flint</ToPortName>
+      <Component>
+        <Id>d2c655ce-a1d6-4f1f-8183-ba12f54da414</Id>
+        <Name>Flint</Name>
+      </Component>
+      <Component>
+        <Id>dee0ba62-e6c9-4388-809c-ddaf004ef21e</Id>
+        <Name>FuelMixture</Name>
+      </Component>
+    </PortLinkGlyph>
+    <ComponentGlyph Name="Frame" Id="552c74d9-7c41-4065-82d1-a81ad807941a" DoNotInstrument="false">
+      <Note />
+      <TypeName>representing the user</TypeName>
+      <IsMultiInstance>false</IsMultiInstance>
+      <ComponentGlyph Name="Flint" Id="d2c655ce-a1d6-4f1f-8183-ba12f54da414" DoNotInstrument="false">
+        <Note />
+        <ParentId>552c74d9-7c41-4065-82d1-a81ad807941a</ParentId>
+        <TypeName>Samples.Lighter.Flint, SampleLighter1</TypeName>
+        <IsMultiInstance>false</IsMultiInstance>
+      </ComponentGlyph>
+      <ComponentGlyph Name="FuelMixture" Id="dee0ba62-e6c9-4388-809c-ddaf004ef21e" DoNotInstrument="false">
+        <Note />
+        <ParentId>552c74d9-7c41-4065-82d1-a81ad807941a</ParentId>
+        <TypeName>Samples.Lighter.FuelMixture, SampleLighter1</TypeName>
+        <IsMultiInstance>false</IsMultiInstance>
+      </ComponentGlyph>
+      <ComponentGlyph Name="Air" Id="be0cb7c7-5ef8-4b3e-8e9c-07a38b1a35f5" DoNotInstrument="false">
+        <Note />
+        <ParentId>552c74d9-7c41-4065-82d1-a81ad807941a</ParentId>
+        <TypeName>Samples.Lighter.Air, SampleLighter1</TypeName>
+        <IsMultiInstance>false</IsMultiInstance>
+      </ComponentGlyph>
+      <ComponentGlyph Name="Valve" Id="239269e2-d3e5-4b24-9db9-6896147165fe" DoNotInstrument="false">
+        <Note />
+        <ParentId>552c74d9-7c41-4065-82d1-a81ad807941a</ParentId>
+        <TypeName>Samples.Lighter.Valve, SampleLighter1</TypeName>
+        <IsMultiInstance>false</IsMultiInstance>
+      </ComponentGlyph>
+    </ComponentGlyph>
+  </Glyphs>
+</StateMachine>

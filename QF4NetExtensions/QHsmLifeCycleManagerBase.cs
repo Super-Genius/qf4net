@@ -14,6 +14,14 @@ namespace qf4net
 
         Hashtable _HsmCollection = new Hashtable ();
 
+        public Hashtable HsmCollection
+        {
+            get 
+            {
+                return _HsmCollection;
+            }
+        }
+
 	    public void RegisterHsm(ILQHsm hsm)
 	    {
             lock (_HsmCollection.SyncRoot)

@@ -2,6 +2,8 @@
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace qf4net
 {
@@ -15,6 +17,13 @@ namespace qf4net
 
         private IQEventManager m_EventManager;
         private QHsmLifeCycleManagerWithHsmEventsBaseAndEventManager m_LifeCycleManager;
+
+        private Dictionary<string, GQHSM> m_NameToHSM = new Dictionary<string, GQHSM>();
+
+        /// <summary>
+        /// the destination compoment to a list of port links
+        /// </summary>
+        private MultiMap<string, GQHSMPortLink> m_DestNameToPortLinks = new MultiMap<string, GQHSMPortLink>();
 
         public static GQHSMManager Instance
         {
@@ -49,7 +58,7 @@ namespace qf4net
 			ns.Add("","");
 			
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(GHQSMSerializable));
+            XmlSerializer serializer = new XmlSerializer(typeof(StateMachine));
 
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
@@ -62,7 +71,7 @@ namespace qf4net
 
 		}
 	
-        public GQHSM LoadFromXML(string filePathName, bool bInit)
+        public GQHSM LoadFromXML(string filePathName)
         {
             GQHSM theHSM;
 
@@ -73,20 +82,20 @@ namespace qf4net
                 return null;
             }
 			
-			theHSM = LoadFromXML(Path.GetFileNameWithoutExtension(filePathName), fs, bInit);
+			theHSM = LoadFromXML(Path.GetFileNameWithoutExtension(filePathName), fs);
 
             fs.Close();
 
             return theHSM;
         }
 		
-        public GQHSM LoadFromXML(string fileName, Stream fs, bool bInit)
+        public GQHSM LoadFromXML(string fileName, Stream fs)
         {
             GQHSM theHSM;
 
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(GHQSMSerializable));
+            XmlSerializer serializer = new XmlSerializer(typeof(StateMachine));
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
             // UnknownNode and UnknownAttribute events.
@@ -94,24 +103,20 @@ namespace qf4net
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
 
-            theHSM = new GQHSM();
-			theHSM.HSMData = (GHQSMSerializable)serializer.Deserialize(fs);
-			theHSM.SetName(fileName);
-            if (bInit)
-            {
-                theHSM.Init();
-            }
+            theHSM = new GQHSM(fileName);
+			theHSM.HSMData = (StateMachine)serializer.Deserialize(fs);
+            theHSM.PreInit();
 
             return theHSM;
         }
 		
-        public GQHSM LoadFromXML(string fileName, string sXML, bool bInit)
+        public GQHSM LoadFromXML(string fileName, string sXML)
         {
             GQHSM theHSM;
 
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(GHQSMSerializable));
+            XmlSerializer serializer = new XmlSerializer(typeof(StateMachine));
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
             // UnknownNode and UnknownAttribute events.
@@ -119,13 +124,9 @@ namespace qf4net
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
 			StringReader srXML = new StringReader(sXML);
-			theHSM = new GQHSM();
-            theHSM.HSMData = (GHQSMSerializable)serializer.Deserialize(srXML);
-			theHSM.SetName(fileName);
-            if (bInit)
-            {
-                theHSM.Init();
-            }
+            theHSM = new GQHSM(fileName);
+            theHSM.HSMData = (StateMachine)serializer.Deserialize(srXML);
+            theHSM.PreInit();
 
             return theHSM;
         }
@@ -137,29 +138,78 @@ namespace qf4net
 
             // create a life cycle manager to hold multiple HSM's for us
             m_LifeCycleManager = new QHsmLifeCycleManagerWithHsmEventsBaseAndEventManager(m_EventManager);
-
-            m_LifeCycleManager.UnhandledTransition += new DispatchUnhandledTransitionHandler(events_UnhandledTransition);
-            m_LifeCycleManager.DispatchException += new DispatchExceptionHandler(events_DispatchException);
         }
 
-        private void events_UnhandledTransition(IQHsm hsm, QState state, IQEvent ev)
+        public void SendPortAction(string sourcePortName, string actionName, object data)
         {
-            Logger.Warn("Unhandled Transition Event {0}: From State Machine: {1}", ev.ToString(), hsm.ToString());
+
+            foreach (GQHSM hsm in m_NameToHSM.Values)
+            {
+                hsm.SendPortAction(sourcePortName, actionName, data);
+            }
         }
 
-        private void events_DispatchException(Exception ex, IQHsm hsm, QState state, IQEvent ev)
+        public void RegisterPortLink(GQHSMPortLink portLink)
         {
-            Logger.Warn("Dispatch Exception {0} Event: {1} From State Machine: {2}", ex.ToString(), ev.ToString(), hsm.ToString());
+            m_DestNameToPortLinks.Add(portLink.Component[1].Name, portLink);
         }
 
-        public void RegisterHsm(ILQHsm hsm)
+        public List<GQHSMPort> GetSourcePorts(string destHsmName, string destPortName)
         {
-            m_LifeCycleManager.RegisterHsm(hsm);
+            List<GQHSMPort> retPorts = new List<GQHSMPort>();
+
+            List<GQHSMPortLink> portLinks = m_DestNameToPortLinks[destHsmName];
+
+            GQHSM sourceHsm;
+            GQHSMPort srcPort;
+
+            // lookup a portlink if there is one
+            foreach (GQHSMPortLink portLink in portLinks)
+            {
+                if (portLink.ToPortName == destPortName)
+                {
+                    if (m_NameToHSM.ContainsKey(portLink.Component[0].Name))
+                    {
+                        sourceHsm = m_NameToHSM[portLink.Component[0].Name];
+                        srcPort = sourceHsm.GetPort(portLink.FromPortName);
+                        if (srcPort != null)
+                        {
+                            retPorts.Add(srcPort);
+                        }
+                    }
+                }
+            }
+
+            // if no port links, then try to map destination hsm name to port in the source HSM
+            if (portLinks.Count == 0)
+            {
+                // treat the portName == Component Name
+                if (m_NameToHSM.ContainsKey(destPortName))
+                {
+                    sourceHsm = m_NameToHSM[destPortName];
+                    // and the port equals the component name
+                    // this maps Air.FuelMixture to FuelMixture.Air port names
+                    srcPort = sourceHsm.GetPort(destHsmName);
+                    if (srcPort != null)
+                    {
+                        retPorts.Add(srcPort);
+                    }
+                }
+            }
+
+            return retPorts;
         }
 
-        public void UnregisterHsm(ILQHsm hsm)
+        public void RegisterHsm(GQHSM hsm)
         {
-            m_LifeCycleManager.UnregisterHsm(hsm);
+            m_NameToHSM.Add(hsm.GetName(), hsm);
+            m_LifeCycleManager.RegisterHsm((ILQHsm)hsm);
+        }
+
+        public void UnregisterHsm(GQHSM hsm)
+        {
+            m_LifeCycleManager.UnregisterHsm((ILQHsm)hsm);
+            m_NameToHSM.Remove(hsm.GetName());
         }
 
         /// <summary>
