@@ -154,7 +154,7 @@ namespace qf4net
                             _parentHSM.LogStateEvent(StateLogType.Entry, _stateHandler);
                         if (_entryActions != null)
                             _entryActions.InvokeActionHandlers();
-                        _parentHSM.SetTimeOut(Id);
+                        _parentHSM.SetTimeOuts(Id);
                     }
                     return null;
                 case QSignals.Exit:
@@ -163,7 +163,7 @@ namespace qf4net
                             _parentHSM.LogStateEvent(StateLogType.Exit, _stateHandler);
                         if (_exitActions != null)
                             _exitActions.InvokeActionHandlers();
-                        _parentHSM.ClearTimeOut(Id);
+                        _parentHSM.ClearTimeOuts(Id);
                     }
                     return null;
                 case QSignals.Empty:

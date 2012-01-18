@@ -86,9 +86,9 @@ namespace qf4net
         private MultiMap<string, GQHSMTransition> _nameToGuardedTransitionMultiMap = new MultiMap<string, GQHSMTransition>();
 
         /// <summary>
-        /// Names to Timeout class map
+        /// Names to Timeouts class map
         /// </summary>
-        private Dictionary<Guid, GQHSMTimeOut> _nameToTimeOutMap = new Dictionary<Guid, GQHSMTimeOut>();
+		private MultiMap<Guid, GQHSMTimeOut> _nameToTimeOutMap = new MultiMap<Guid, GQHSMTimeOut>();
 
         /// <summary>
         /// Single ports that mapped by name
@@ -546,42 +546,32 @@ namespace qf4net
 
         public void RegisterTimeOutExpression(Guid stateGuid, GQHSMTimeOut to)
         {
-            if (!_nameToTimeOutMap.ContainsKey(stateGuid))
-            {
-                _nameToTimeOutMap.Add(stateGuid, to);
-            }
-            else
-            {
-                Logger.Error("Duplicate Guid in TimeOut {0}\n", stateGuid);
-            }
-
+			_nameToTimeOutMap.Add(stateGuid, to);
         }
 
-        public void SetTimeOut(Guid stateGuid)
+        public void SetTimeOuts(Guid stateGuid)
         {
-            GQHSMTimeOut foundTO = null;
+			List<GQHSMTimeOut> timeOuts;
 
-            // see if it is in the list and if so return it's QState delegate
-            _nameToTimeOutMap.TryGetValue(stateGuid, out foundTO);
+			timeOuts = _nameToTimeOutMap[stateGuid];
 
-            if (foundTO != null)
-            {
-                foundTO.SetTimeOut(this);
+			foreach (GQHSMTimeOut timeOut in timeOuts)
+			{
+                timeOut.SetTimeOut(this);
             }
         }
 
-        public void ClearTimeOut(Guid stateGuid)
+        public void ClearTimeOuts(Guid stateGuid)
         {
-            GQHSMTimeOut foundTO = null;
+			List<GQHSMTimeOut> timeOuts;
 
-            // see if it is in the list and if so return it's QState delegate
-            _nameToTimeOutMap.TryGetValue(stateGuid, out foundTO);
+			timeOuts = _nameToTimeOutMap[stateGuid];
 
-            if (foundTO != null)
-            {
-                foundTO.ClearTimeOut(this);
-            }
-        }
+			foreach (GQHSMTimeOut timeOut in timeOuts)
+			{
+				timeOut.ClearTimeOut(this);
+			}
+		}
 
         /// <summary>
         /// Parse Timeout Expressions
@@ -607,21 +597,13 @@ namespace qf4net
 				if (timeOutExpression.IndexOf (" ") == -1)
 				{
                     double timeOut = 0.0f;
+					GQHSMAction action = null;
                     if (!Double.TryParse(timeOutExpression, out timeOut))
                     {
-                        GQHSMAction action = new GQHSMAction(this, timeOutExpression);
-                        object retObject = action.InvokeActionHandler();
-                        if (retObject is Double)
-                        {
-                            timeOut = (Double)retObject;
-                        }
-                        else
-                        {
-                            Logger.Debug("Timeout Expression public float {0}({1}); not found!", action.Name, action.Params.GetParametersString());
-                        }
-                    }
+                        action = new GQHSMAction(this, timeOutExpression);
+					}
                     RegisterTimeOutExpression(transition.GetSourceStateID(),
-                        new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(timeOut), new QEvent(eventSignal)));
+                        new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(timeOut), new QEvent(eventSignal), action));
 				} 
 				else 
 				{
@@ -637,44 +619,25 @@ namespace qf4net
 					{
                         flag = TimeOutType.Single;
                         DateTime dt;
-
+						GQHSMAction action = null;
                         if (!DateTime.TryParse(timeOutValue, out dt))
                         {
-                            GQHSMAction action = new GQHSMAction(this, timeOutValue);
-                            object retObject = action.InvokeActionHandler();
-                            if (retObject is DateTime)
-                            {
-                                dt = (DateTime)retObject;
-                            }
-                            else
-                            {
-                                Logger.Debug("Timeout Expression public DateTime {0}({1}); not found!", action.Name, action.Params.GetParametersString());
-                            }
-                        }
-
+							action = new GQHSMAction(this, timeOutValue);
+						}
                         RegisterTimeOutExpression(transition.GetSourceStateID(),
-                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), dt, new QEvent(eventSignal)));
-
+                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), dt, new QEvent(eventSignal), action));
 					} 
 					else 
 					{
                         Double timeOut = 0.0f;
-                        if (!Double.TryParse(timeOutValue, out timeOut))
-                        {
-                            GQHSMAction action = new GQHSMAction(this, timeOutValue);
-                            object retObject = action.InvokeActionHandler();
-                            if (retObject is Double)
-                            {
-                                timeOut = (Double)retObject;
-                            }
-                            else
-                            {
-                                Logger.Debug("Timeout Expression public float {0}({1}); not found!", action.Name, action.Params.GetParametersString());
-                            }
-                        }
+						GQHSMAction action = null;
+						if (!Double.TryParse(timeOutValue, out timeOut))
+						{
+							action = new GQHSMAction(this, timeOutValue);
+						}
 
-                        RegisterTimeOutExpression(transition.GetSourceStateID(),
-                            new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(timeOut), new QEvent(eventSignal), flag));
+						RegisterTimeOutExpression(transition.GetSourceStateID(),
+							new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), TimeSpan.FromSeconds(timeOut), new QEvent(eventSignal), flag, action));
 					}
 				}
         }
