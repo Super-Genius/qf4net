@@ -37,16 +37,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="MyLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\qf4Net.csproj">
+    <ProjectReference Include="..\qf4net.csproj">
       <Project>{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}</Project>
-      <Name>qf4Net</Name>
+      <Name>qf4net</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

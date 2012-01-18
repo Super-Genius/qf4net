@@ -20,6 +20,9 @@ namespace qf4net
         private string _fullName;       // fully qualified name, i.e.  State1.State2.State3, etc.
         private GQHSMState _parent;
         private GQHSMState _childStartState = null;
+        private GQHSMActions _entryActions = null;
+        private GQHSMActions _exitActions = null;
+        private GQHSMActions _actions = null;
 				
 		/// <summary>
 		/// The parent identifier.
@@ -105,6 +108,21 @@ namespace qf4net
                     gs.Init(this);
                 }
             }
+
+            if (EntryAction.Length > 0)
+            {
+                _entryActions = new GQHSMActions(_parentHSM, EntryAction);
+            }
+
+            if (ExitAction.Length > 0)
+            {
+                _exitActions = new GQHSMActions(_parentHSM, ExitAction);
+            }
+
+            if ((_stateCommands != null) && (_stateCommands.Length > 0))
+            {
+                _actions = new GQHSMActions(_parentHSM, _stateCommands);
+            }
         }
 
         private GQHSMState GetChildStartState()
@@ -134,12 +152,8 @@ namespace qf4net
                     {
                         if (_parentHSM.Instrument && !DoNotInstrument)
                             _parentHSM.LogStateEvent(StateLogType.Entry, _stateHandler);
-                        string actionName = _fullName;
-                        if (EntryAction.Length > 0)
-                        {
-                            actionName = EntryAction;
-                        }
-                        _parentHSM.CallActionHandler(actionName, QSignals.Entry, _parentHSM.GetData());
+                        if (_entryActions != null)
+                            _entryActions.InvokeActionHandlers();
                         _parentHSM.SetTimeOut(Id);
                     }
                     return null;
@@ -147,12 +161,8 @@ namespace qf4net
                     {
                         if (_parentHSM.Instrument && !DoNotInstrument)
                             _parentHSM.LogStateEvent(StateLogType.Exit, _stateHandler);
-                        string actionName = _fullName;
-                        if (ExitAction.Length > 0)
-                        {
-                            actionName = ExitAction;
-                        }
-                       	_parentHSM.CallActionHandler(actionName, QSignals.Exit, _parentHSM.GetData());
+                        if (_exitActions != null)
+                            _exitActions.InvokeActionHandlers();
                         _parentHSM.ClearTimeOut(Id);
                     }
                     return null;
@@ -162,7 +172,16 @@ namespace qf4net
                     break;
                 default:
                     {
-                        if (_parentHSM.StateTransitionInternal(_fullName, ev.QSignal, ev.QData))
+						GQHSMParameters evParams = (GQHSMParameters)ev.QData;
+						if (ev.QData is GQHSMParameters)
+                        {
+							if (evParams[0] != null)
+							{
+								manager.Globals["ev"].Copy(evParams[0]);
+							}
+                        }
+
+                        if (_parentHSM.StateTransitionInternal(_fullName, evParams, ev.QSignal))
                         {
                             return null;
                         }

@@ -55,14 +55,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="GQHSM\GQHSMGlyphs.cs" />
     <Compile Include="GQHSM\GQHSM.cs" />
+    <Compile Include="GQHSM\GQHSMActions.cs" />
     <Compile Include="GQHSM\GQHSMComponent.cs" />
     <Compile Include="GQHSM\GQHSMGlyph.cs" />
     <Compile Include="GQHSM\GQHSMManager.cs" />
+    <Compile Include="GQHSM\GQHSMParameters.cs" />
     <Compile Include="GQHSM\GQHSMPort.cs" />
     <Compile Include="GQHSM\GQHSMPortLink.cs" />
+    <Compile Include="GQHSM\GQHSMStateMachine.cs" />
     <Compile Include="GQHSM\GQHSMTransition.cs" />
+    <Compile Include="GQHSM\GQHSMVariables.cs" />
     <Compile Include="GQHSM\MultiMap.cs" />
+    <Compile Include="GQHSM\GQHSMStateMachineInfo.cs" />
     <Compile Include="HierarchicalStateMachine\src\EventQueueFactory.cs" />
     <Compile Include="HierarchicalStateMachine\src\IQActive.cs" />
     <Compile Include="HierarchicalStateMachine\src\IQEvent.cs" />

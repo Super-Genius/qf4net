@@ -2,20 +2,15 @@ using System.Reflection;
 
 namespace qf4net
 {
-    public delegate void GQHSMDelegate();
-    public delegate object GQHSMDelegateOO(object Params);
+    public delegate object GQHSMDelegate();
+    public delegate object GQHSMDelegateOO(GQHSMVariables Params);
  
     public class GQHSMHandler
     {
         private object _sourceObject;
-        private GQHSMDelegateOO _classDelegateOO = null;
+        private GQHSMVariables _globals = GQHSMManager.Instance.Globals;
         private GQHSMDelegate _classDelegate = null;
-
-        public GQHSMHandler(object sourceObject, GQHSMDelegateOO sourceDelegate)
-        {
-            _sourceObject = sourceObject;
-            _classDelegateOO = sourceDelegate;
-        }
+        private GQHSMDelegateOO _classDelegateOO = null;
 
         public GQHSMHandler(object sourceObject, GQHSMDelegate sourceDelegate)
         {
@@ -23,14 +18,30 @@ namespace qf4net
             _classDelegate = sourceDelegate;
         }
 
-        public object Invoke(object Params)
+        public GQHSMHandler(object sourceObject, GQHSMDelegateOO sourceDelegate)
         {
-            if (_classDelegate != null)
-                return _classDelegate.Method.Invoke(_sourceObject, null);
-            if (_classDelegateOO != null)
-                return _classDelegateOO.Method.Invoke(_sourceObject, new object[] { Params });
+            _sourceObject = sourceObject;
+            _classDelegateOO = sourceDelegate;
+        }
 
-            return null;
+        public object Invoke(GQHSMParameters Params)
+        {
+            GQHSMParameters _params = Params;
+            object retValue = null;
+            if (_params == null)
+                _params = new GQHSMParameters();
+
+            if (_classDelegateOO != null)
+            {
+                retValue = _classDelegateOO.Method.Invoke(_sourceObject, new object[] { _params });
+            }
+
+            if (_classDelegate != null)
+            {
+                _classDelegate.Method.Invoke(_sourceObject, new object[] { null });
+            }
+
+            return retValue;
         }
 
     }

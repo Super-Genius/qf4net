@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<StateMachine>
+  <StateMachineInfo Name="Flint" Id="fa7a4d7c-8e52-4e9d-96b3-325cb7cf9a5d">
+    <ImplementationVersion>0.2</ImplementationVersion>
+    <ModelFileName>Flint.sm1</ModelFileName>
+    <HasSubMachines>false</HasSubMachines>
+    <StateMachineVersion>3</StateMachineVersion>
+    <BaseStateMachine />
+    <NameSpace>Samples.Lighter</NameSpace>
+    <UsingNameSpaces />
+    <ReadOnly>true</ReadOnly>
+    <Comment />
+    <Assembly />
+  </StateMachineInfo>
+  <Glyphs>
+    <StateGlyph Name="NoSparks" Id="cfa8edba-32b8-43b6-8b1e-2816c501ddf7" DoNotInstrument="false">
+      <Note />
+      <IsStartState>true</IsStartState>
+      <EntryAction />
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateGlyph Name="Sparking" Id="cf828a6f-2abb-4b7a-9161-bdc8bfdb9161" DoNotInstrument="false">
+      <Note />
+      <IsStartState>false</IsStartState>
+      <EntryAction />
+      <ExitAction />
+      <StateCommands />
+    </StateGlyph>
+    <StateTransitionPortGlyph Name="FuelMixture" Id="7aadfeb2-ecf4-4a02-ac00-10e8df4dc395" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+    <TransitionGlyph Name="" Id="849cb74f-346f-46fe-a7c8-de7d53502a92" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Spin</EventSignal>
+      <EventSource>User</EventSource>
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression />
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>cfa8edba-32b8-43b6-8b1e-2816c501ddf7</Id>
+        <Name>NoSparks</Name>
+      </State>
+      <State>
+        <Id>cf828a6f-2abb-4b7a-9161-bdc8bfdb9161</Id>
+        <Name>Sparking</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="t0" Id="2acfb3ca-6eda-4ec9-bce5-cab7ece50294" DoNotInstrument="false">
+      <Note />
+      <EventSignal>StopSpinning</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action />
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>after RandomSpinInterval()</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>cf828a6f-2abb-4b7a-9161-bdc8bfdb9161</Id>
+        <Name>Sparking</Name>
+      </State>
+      <State>
+        <Id>cfa8edba-32b8-43b6-8b1e-2816c501ddf7</Id>
+        <Name>NoSparks</Name>
+      </State>
+    </TransitionGlyph>
+    <TransitionGlyph Name="t1" Id="9efab50b-666e-483f-add2-e51f4b3370da" DoNotInstrument="false">
+      <Note />
+      <EventSignal>Spark</EventSignal>
+      <EventSource />
+      <GuardCondition />
+      <Action>^FuelMixture.Ignite()</Action>
+      <EvaluationOrderPriority>0</EvaluationOrderPriority>
+      <EventType />
+      <IsInnerTransition>false</IsInnerTransition>
+      <TimeOutExpression>every SparkFrequencyInterval()</TimeOutExpression>
+      <TransitionType>Normal</TransitionType>
+      <State>
+        <Id>cf828a6f-2abb-4b7a-9161-bdc8bfdb9161</Id>
+        <Name>Sparking</Name>
+      </State>
+      <State>
+        <Id>cf828a6f-2abb-4b7a-9161-bdc8bfdb9161</Id>
+        <Name>Sparking</Name>
+      </State>
+    </TransitionGlyph>
+    <StateTransitionPortGlyph Name="User" Id="72e5f20b-30ac-49d1-a399-24ef062e5eae" DoNotInstrument="false">
+      <Note />
+      <IsMultiPort>false</IsMultiPort>
+    </StateTransitionPortGlyph>
+  </Glyphs>
+</StateMachine>

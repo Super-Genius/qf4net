@@ -10,6 +10,8 @@ namespace qf4net
 
         private GQHSMTransitionState[] _transitionStates;
         private int _slot;
+        private GQHSMActions _actions = null;
+        private GQHSMActions _guards = null;
 
         public string EventSignal;
 
@@ -72,6 +74,16 @@ namespace qf4net
                 _parentHSM.RegisterTimeOutExpression(this, TimeOutExpression);
             }
 
+            if (Action.Length > 0)
+            {
+                _actions = new GQHSMActions(_parentHSM, Action);
+            }
+
+            if (GuardCondition.Length > 0)
+            {
+                _guards = new GQHSMActions(_parentHSM, GuardCondition);
+            }
+
         }
 
         public Guid GetSourceStateID()
@@ -116,6 +128,26 @@ namespace qf4net
 
         }
 
+        public void InvokeActions()
+        {
+            if (_actions != null)
+            {
+                _actions.InvokeActionHandlers();
+            }
+        }
+
+        public bool InvokeGuards()
+        {
+            if (_guards != null)
+            {
+                if ((bool)_guards.InvokeActionHandlers())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public class GQHSMTransitionState

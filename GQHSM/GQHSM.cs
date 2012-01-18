@@ -3,88 +3,19 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace qf4net
 {
-
-    public class StateMachineInfo
-    {
-        [XmlAttribute]
-        public string Name;
-
-        [XmlAttribute]
-        public Guid Id;
-
-        public string ImplementationVersion;
-
-        public string ModelFileName;
-
-        public bool HasSubMachines;
-
-        public int StateMachineVersion;
-
-        public string BaseStateMachine;
-
-        public string NameSpace;
-
-        public string UsingNameSpaces;
-
-        public string Comment;
-
-        public string Fields;
-
-        public bool ReadOnly;
-
-        public string Assembly;
-	}
-
-    public class Glyphs
-    {
-        [XmlElement("StateGlyph")]
-        public GQHSMState[] States;
-
-        [XmlElement("TransitionGlyph")]
-        public GQHSMTransition[] Transitions;
-
-        [XmlElement("ComponentGlyph")]
-        public GQHSMComponent[] Components;
-
-        [XmlElement("PortLinkGlyph")]
-        public GQHSMPortLink[] PortLinks;
-
-        [XmlElement("StateTransitionPortGlyph")]
-        public GQHSMPort[] Ports;
-    }
-
-	[XmlRoot("StateMachine")]
-	public class StateMachine
-	{
-        private StateMachineInfo _stateMachineInfo;
-
-        public StateMachineInfo StateMachineInfo
-        {
-            get
-            {
-                return _stateMachineInfo;
-            }
-
-            set
-            {
-                _stateMachineInfo = value;
-            }
-        }
-
-        public Glyphs Glyphs;
-
-    }
-		
     public class GQHSM : LQHsm
     {
         private string _name;
-		private object _data = null;
 		private bool _instrument = false;
-		private StateMachine _hsmS;
-		
+        // the class that can handle action commands
+        private object _handlerClass = null;
+		private GQHSMStateMachine _hsmS;
+        private GQHSMVariables _globals = GQHSMManager.Instance.Globals;
+
 		private GQHSMState[] States
 		{
 			get
@@ -129,19 +60,11 @@ namespace qf4net
             }
         }
 
+        private MultiMap<String, MethodInfo> m_classHanderMethods = new MultiMap<String, MethodInfo>();
         /// <summary>
         /// Action Handlers for HSMs
         /// </summary>
-
-        public MultiMap<String, GQHSMHandler> m_ActionHandlersEntryMap = new MultiMap<String, GQHSMHandler>();
-        public MultiMap<String, GQHSMHandler> m_ActionHandlersExitMap = new MultiMap<String, GQHSMHandler>();
-        public MultiMap<String, GQHSMHandler> m_ActionHandlersMap = new MultiMap<String, GQHSMHandler>();
-
-        /// transition change handlers for HSMs
-        private MultiMap<String, GQHSMHandler> m_QHSMTransitionHandlers = new MultiMap<String, GQHSMHandler>();
-
-        /// guard function delegates for HSMs
-        private MultiMap<String, GQHSMHandler> m_QHSMGuardHandlers = new MultiMap<String, GQHSMHandler>();
+        private MultiMap<String, GQHSMHandler> m_ActionHandlersMap = new MultiMap<String, GQHSMHandler>();
 
 		/// <summary>
         /// Maps a GUID to a GHQMState
@@ -187,7 +110,7 @@ namespace qf4net
         /// </summary>
         private QState _startState;
 					
-		public StateMachine HSMData
+		public GQHSMStateMachine HSMData
 		{
 			get	
 			{
@@ -210,6 +133,14 @@ namespace qf4net
             return TopState;
         }
 
+        public object HandlerClass
+        {
+            get
+            {
+                return _handlerClass;
+            }
+        }
+   
         protected override void InitializeStateMachine()
         {
             InitState(_startState);
@@ -341,7 +272,6 @@ namespace qf4net
 
         public override void Init()
         {
-
             // let states initialize now.
             if (States != null)
             {
@@ -385,6 +315,16 @@ namespace qf4net
 
             // init state machine after all objects are inited.
             base.Init();
+        }
+
+        public void Init(object handlerClass)
+        {
+
+            _handlerClass = handlerClass;
+            GatherHandlerMethodsAndVariables();
+
+            Init();
+
         }
 
 		public bool Instrument
@@ -454,14 +394,14 @@ namespace qf4net
 		/// <param name='data'>
 		/// any object that is passed between states
 		/// </param>
-		public bool StateTransitionInternal(string stateName, string signalName, object data)
+		public bool StateTransitionInternal(string stateName, GQHSMParameters Params, string signalName)
         {
             GQHSMTransition transition = null;
 			string fullTransitionName = stateName + "." + signalName;
             // if we know about the transition
             bool retVal = false;
 
-            retVal = GetGuardedTransition(fullTransitionName, data, ref transition);
+            retVal = GetGuardedTransition(fullTransitionName, Params, ref transition);
 
             if (transition != null)
             {
@@ -477,44 +417,34 @@ namespace qf4net
                 if (_instrument && !transition.DoNotInstrument)
                     LogStateEvent(StateLogType.EventTransition, GetCurrentState(), stateHandler, transition.Name, signalName);
 
-                CallTransitionHandler(fullTransitionName, data);
-				
-				_data = data;
-
                 if (!transition.IsInnerTransition)
                 {
                     DoTransitionTo(stateHandler, transition.GetSlot());
                 }
-				
-				_data = null;
 
+                // still execute actions on this inner transition
+                transition.InvokeActions();
+				
                 retVal = true;
             }
 			else if (signalName == "Internal.TransitionTo")
 			{
-				GQHSMState state = (GQHSMState)data;
-   	        	DoTransitionTo(state.GetStateHandler());
-                retVal = true;
+                if (Params.Count == 1)
+                {
+                    GQHSMState state = (GQHSMState)Params[0].Value;
+                    DoTransitionTo(state.GetStateHandler());
+                    return true;
+                }
+
+                return false;
 			}
 
             return retVal;
         }
 		
-		/// <summary>
-		/// Gets the current data object that is passing between states/transitions
-		/// </summary>
-		/// <returns>
-		/// The generic data object that is being passed
-		/// </returns>
-		public object GetData()
-		{
-			return _data;
-		}
-		
         public void SignalTransition(string transitionName, object data)
         {
             AsyncDispatch(new QEvent(transitionName, data));
-
         }
 
         public void SignalTransitionSync(string transitionName, object data)
@@ -522,7 +452,7 @@ namespace qf4net
             Dispatch(new QEvent(transitionName, data));
         }
 
-        public bool GetGuardedTransition(string signalName, object data, ref GQHSMTransition transition)
+        public bool GetGuardedTransition(string signalName, GQHSMParameters Params, ref GQHSMTransition transition)
         {
             List<GQHSMTransition> guardTansitions;
             GQHSMTransition foundTransition = null;
@@ -533,9 +463,16 @@ namespace qf4net
 
             foreach (GQHSMTransition gTransition in guardTansitions)
             {
-                // we had a guard condition and handled the transition but guard may have failed
+                // we had a guard condition and handled the transition but guard may fail
+
+                // call methods directly if any.
+                if (gTransition.InvokeGuards())
+                {
+                    return true;
+                }
+
                 retValue = true;
-                if (CallGuardHandler(gTransition.GuardCondition, data))
+                if (CallGuardHandler(gTransition.GuardCondition, Params))
                 {
                     transition = gTransition;
                     return true;
@@ -669,13 +606,18 @@ namespace qf4net
 
 				if (timeOutExpression.IndexOf (" ") == -1)
 				{
-                    Single timeOut = 0.0f;
-                    if (!Single.TryParse(timeOutExpression, out timeOut))
+                    double timeOut = 0.0f;
+                    if (!Double.TryParse(timeOutExpression, out timeOut))
                     {
-                        object actionRet = CallActionHandler(timeOutExpression, "", null);
-                        if (actionRet != null)
+                        GQHSMAction action = new GQHSMAction(this, timeOutExpression);
+                        object retObject = action.InvokeActionHandler();
+                        if (retObject is Double)
                         {
-                            timeOut = (float)actionRet;
+                            timeOut = (Double)retObject;
+                        }
+                        else
+                        {
+                            Logger.Debug("Timeout Expression public float {0}({1}); not found!", action.Name, action.Params.GetParametersString());
                         }
                     }
                     RegisterTimeOutExpression(transition.GetSourceStateID(),
@@ -696,20 +638,38 @@ namespace qf4net
                         flag = TimeOutType.Single;
                         DateTime dt;
 
-                        dt = DateTime.Parse(timeOutValue);
+                        if (!DateTime.TryParse(timeOutValue, out dt))
+                        {
+                            GQHSMAction action = new GQHSMAction(this, timeOutValue);
+                            object retObject = action.InvokeActionHandler();
+                            if (retObject is DateTime)
+                            {
+                                dt = (DateTime)retObject;
+                            }
+                            else
+                            {
+                                Logger.Debug("Timeout Expression public DateTime {0}({1}); not found!", action.Name, action.Params.GetParametersString());
+                            }
+                        }
+
                         RegisterTimeOutExpression(transition.GetSourceStateID(),
                             new GQHSMTimeOut(transition.State[0].Name + "." + transition.GetFullName(), dt, new QEvent(eventSignal)));
 
 					} 
 					else 
 					{
-                        Single timeOut = 0.0f;
-                        if (!Single.TryParse(timeOutValue, out timeOut))
+                        Double timeOut = 0.0f;
+                        if (!Double.TryParse(timeOutValue, out timeOut))
                         {
-                            object actionRet = CallActionHandler(timeOutValue, "", null);
-                            if (actionRet != null)
+                            GQHSMAction action = new GQHSMAction(this, timeOutValue);
+                            object retObject = action.InvokeActionHandler();
+                            if (retObject is Double)
                             {
-                                timeOut = (float)actionRet;
+                                timeOut = (Double)retObject;
+                            }
+                            else
+                            {
+                                Logger.Debug("Timeout Expression public float {0}({1}); not found!", action.Name, action.Params.GetParametersString());
                             }
                         }
 
@@ -729,99 +689,61 @@ namespace qf4net
         }
 
         // Allow other classes to register Action Handlers for StateMachine Actions OnEntry/OnExit
-        public void RegisterActionHandler(GQHSMHandler scHandler, string sActionName, string sSignalType)
+        public void RegisterActionHandler(string sActionName, GQHSMHandler scHandler)
         {
-            switch (sSignalType)
-            {
-                case QSignals.Entry:
-                    m_ActionHandlersEntryMap.Add(sActionName, scHandler);
-                    break;
-                case QSignals.Exit:
-                    m_ActionHandlersExitMap.Add(sActionName, scHandler);
-                    break;
-                default:
-                    m_ActionHandlersMap.Add(sActionName, scHandler);
-                    break;
-            }
+            m_ActionHandlersMap.Add(sActionName, scHandler);
         }
 
-        public object CallActionHandler(string sActionName, string sSignalType, object data)
+        // Allow other classes to register Action Handlers for StateMachine Actions OnEntry/OnExit
+        public void RegisterActionHandler(GQHSMHandler scHandler)
         {
-            List<GQHSMHandler> actionList = null;
+            RegisterActionHandler(scHandler.ToString(), scHandler);
+        }
+
+        public object CallActionHandler(GQHSMAction action)
+        {
+            string actionName = action.Name;
+            List<GQHSMHandler> actionList;
             List<object> retObjects = new List<object>();
 
-            string[] sActions = sActionName.Split(new string[] {"()"}, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string sNewAction in sActions)
+            if (actionName.StartsWith("^"))
             {
-
-                if (sNewAction.StartsWith("^"))
-                {
-                    CallPortForward(sNewAction, sSignalType, data);
-                }
-                else
-                {
-                    switch (sSignalType)
-                    {
-                        case QSignals.Entry:
-                            actionList = m_ActionHandlersEntryMap[sNewAction];
-                            break;
-                        case QSignals.Exit:
-                            actionList = m_ActionHandlersExitMap[sNewAction];
-                            break;
-                    }
-
-                    if (actionList != null)
-                    {
-                        foreach (GQHSMHandler scHandler in actionList)
-                        {
-                            retObjects.Add(scHandler.Invoke(data));
-                        }
-
-                    }
-                }
-            } // foreach (string sNewAction in sActions)
-
-            if (retObjects.Count == 0)
+                CallPortForward(action);
                 return null;
-            if (retObjects.Count == 1)
-                return retObjects[0];
-
-            return retObjects.ToArray();
-        }
-
-        // Allow other classes to register transitions Handlers for StateMachine Transition events
-        public void RegisterTransitionHandler(GQHSMHandler tHandler, string sTransitionName)
-        {
-            m_QHSMTransitionHandlers.Add(sTransitionName, tHandler);
-        }
-
-        public void CallTransitionHandler(string sTransitionName, object data)
-        {
-            List<GQHSMHandler> transitionList = null;
-
-            transitionList = m_QHSMTransitionHandlers[sTransitionName];
-            foreach (GQHSMHandler tHandler in transitionList)
+            }
+            else
             {
-                tHandler.Invoke( data );
+                actionList = m_ActionHandlersMap[actionName];
             }
 
+            if (actionList != null)
+            {
+                foreach (GQHSMHandler scHandler in actionList)
+                {
+                    retObjects.Add(scHandler.Invoke(action.Params));
+                }
+            }
+
+            if (retObjects.Count == 1)
+            {
+                return retObjects[0];
+            }
+            else if (retObjects.Count > 1)
+            {
+                return retObjects.ToArray();
+            }
+
+            return null;
         }
 
-        // Allow other classes to register guard Handlers for StateMachine guard checking
-        public void RegisterGuardHandler(GQHSMHandler gHandler, string sGuardName)
-        {
-            m_QHSMGuardHandlers.Add(sGuardName, gHandler);
-        }
-
-        public bool CallGuardHandler(string sGuardCondition, object data)
+        public bool CallGuardHandler(string sGuardCondition, GQHSMParameters Params)
         {
             List<GQHSMHandler> guardList = null;
 
-            guardList = m_QHSMGuardHandlers[sGuardCondition];
+            guardList = m_ActionHandlersMap[sGuardCondition];
             foreach (GQHSMHandler gHandler in guardList)
             {
-                bool validated = (bool)gHandler.Invoke(data);
+                bool validated = (bool)gHandler.Invoke(Params);
                 if (validated)
                     return true;
             }
@@ -848,9 +770,9 @@ namespace qf4net
             } 
         }
 
-        public void CallPortForward(string sActionName, string sSignalType, object data)
+        public void CallPortForward(GQHSMAction action)
         {
-            string[] splitS = sActionName.Split(new char[] { '^', '.'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] splitS = action.Name.Split(new char[] { '^', '.'}, StringSplitOptions.RemoveEmptyEntries);
             if (splitS.Length <= 1)
             {
                 Logger.Error("Need Source port and Action, i.e. ^Sourceport.Action");
@@ -861,7 +783,7 @@ namespace qf4net
             GQHSMPort gp = GetPort(splitS[0]);
             if (gp != null)
             {
-                gp.Port.Send(new QEvent(splitS[1], data));
+                gp.Port.Send(new QEvent(splitS[1], action.Params));
             }
         }
 
@@ -875,7 +797,16 @@ namespace qf4net
             return null;
         }
 
-        /// <summary>
+		/// <summary>
+		/// Send an action to a list of ports for this state machine.
+		/// </summary>
+		/// <param name="actionName">the string for the action, i.e. PortName.ActionName</param>
+		/// <param name="data">Generic data </param>
+		public void SendPortAction(string sourcePortName, string actionName)
+		{
+			SendPortAction(sourcePortName, actionName, null);
+		}
+		/// <summary>
         /// Send an action to a list of ports for this state machine.
         /// </summary>
         /// <param name="actionName">the string for the action, i.e. PortName.ActionName</param>
@@ -888,6 +819,85 @@ namespace qf4net
                 QEvent ev = new QEvent(actionName, data);
                 destPort.Port.Receive(destPort.Port, ev);
             }
+        }
+
+        public void GatherHandlerMethodsAndVariables()
+        {
+            MethodInfo[] methodInfos;
+            FieldInfo[] fieldInfos;
+			PropertyInfo[] propertyInfos;
+
+			Type classType = _handlerClass.GetType();
+            methodInfos = classType.GetMethods();
+            foreach (MethodInfo methodInfo in methodInfos)
+            {
+                m_classHanderMethods.Add(methodInfo.Name, methodInfo);
+            }
+
+            fieldInfos = classType.GetFields();
+            foreach (FieldInfo fieldInfo in fieldInfos)
+            {
+                // only take on public fields
+                if (fieldInfo.IsPublic)
+                {
+                    _globals[fieldInfo.Name].SetReference(_handlerClass, fieldInfo);
+                }
+            }
+
+			propertyInfos = classType.GetProperties();
+			foreach (PropertyInfo propertyInfo in propertyInfos)
+			{
+				MethodInfo getMInfo = propertyInfo.GetGetMethod();
+				MethodInfo setMInfo = propertyInfo.GetSetMethod();
+				// only take on public fields
+				if (((getMInfo != null) && (getMInfo.IsPublic)) || ((setMInfo != null) && (setMInfo.IsPublic)))
+				{
+					_globals[propertyInfo.Name].SetProperty(_handlerClass, propertyInfo);
+				}
+			}
+		}
+
+        /// <summary>
+        /// Get Method Info structures that match
+        /// </summary>
+        /// <param name="methodName"></param>
+        /// <returns></returns>
+        public MethodInfo GetMethod(string methodName, GQHSMParameters Params)
+        {
+            List<MethodInfo> methodInfos = m_classHanderMethods[methodName];
+            foreach (MethodInfo methodInfo in methodInfos)
+            {
+                ParameterInfo[] paramInfo = methodInfo.GetParameters();
+                bool varsMatch = true;
+                if (paramInfo.Length == Params.Count)
+                {
+                    for (int i = 0; i < Params.Count; i++)
+                    {
+                        // if Value is null, this is an unknown GQHSMVariable that can be mapped later
+                        if ((Params[i].Value != null) && (Params[i].Value.GetType() != paramInfo[i].ParameterType))
+                        {
+                            varsMatch = false;
+                            break;
+                        }
+                    }
+                }
+                if (varsMatch)
+                {
+                    return methodInfo;
+                }
+
+            }
+            
+            if (methodInfos.Count != 0)
+            {
+                Logger.Debug("Unable to find matching method signature for action handler function: {0}({1});", _name, Params.GetParametersString());
+            }
+            return null;
+        }
+
+        public override string ToString()
+        {
+            return _name;
         }
     }
 

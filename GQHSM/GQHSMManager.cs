@@ -25,6 +25,16 @@ namespace qf4net
         /// </summary>
         private MultiMap<string, GQHSMPortLink> m_DestNameToPortLinks = new MultiMap<string, GQHSMPortLink>();
 
+        private GQHSMVariables _globals = new GQHSMVariables();
+
+		public IQEventManager EventManager
+		{
+			get
+			{
+				return m_EventManager;
+			}
+		}
+
         public static GQHSMManager Instance
         {
             get 
@@ -58,7 +68,7 @@ namespace qf4net
 			ns.Add("","");
 			
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(StateMachine));
+            XmlSerializer serializer = new XmlSerializer(typeof(GQHSMStateMachine));
 
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
@@ -70,7 +80,7 @@ namespace qf4net
             serializer.Serialize(fs, hsm.HSMData, ns);
 
 		}
-	
+
         public GQHSM LoadFromXML(string filePathName)
         {
             GQHSM theHSM;
@@ -95,7 +105,7 @@ namespace qf4net
 
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(StateMachine));
+            XmlSerializer serializer = new XmlSerializer(typeof(GQHSMStateMachine));
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
             // UnknownNode and UnknownAttribute events.
@@ -104,7 +114,7 @@ namespace qf4net
 
 
             theHSM = new GQHSM(fileName);
-			theHSM.HSMData = (StateMachine)serializer.Deserialize(fs);
+			theHSM.HSMData = (GQHSMStateMachine)serializer.Deserialize(fs);
             theHSM.PreInit();
 
             return theHSM;
@@ -116,7 +126,7 @@ namespace qf4net
 
             // Creates an instance of the XmlSerializer class;
             // specifies the type of object to be deserialized.
-            XmlSerializer serializer = new XmlSerializer(typeof(StateMachine));
+            XmlSerializer serializer = new XmlSerializer(typeof(GQHSMStateMachine));
             // If the XML document has been altered with unknown 
             // nodes or attributes, handles them with the 
             // UnknownNode and UnknownAttribute events.
@@ -125,7 +135,7 @@ namespace qf4net
 
 			StringReader srXML = new StringReader(sXML);
             theHSM = new GQHSM(fileName);
-            theHSM.HSMData = (StateMachine)serializer.Deserialize(srXML);
+            theHSM.HSMData = (GQHSMStateMachine)serializer.Deserialize(srXML);
             theHSM.PreInit();
 
             return theHSM;
@@ -232,6 +242,13 @@ namespace qf4net
             Logger.Warn("Unknown attribute {0} = '{1}'", attr.Name, attr.Value);
         }
 
+        public GQHSMVariables Globals
+        {
+            get
+            {
+                return _globals;
+            }
+        }
 
     }
 }

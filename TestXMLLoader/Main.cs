@@ -4,6 +4,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using qf4net;
 using MurphyPA.Logging;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace TestXMLLoader
 {
@@ -11,7 +13,7 @@ namespace TestXMLLoader
 	{
 		public static void Main (string[] args)
 		{
-#if true
+#if false
             Lighter lighter;
 
             lighter = new Lighter();
@@ -30,78 +32,6 @@ namespace TestXMLLoader
         }
     }
 
-    class Lighter
-    {
-        private GQHSM[] _theHSM = new GQHSM[4];
-
-        public Lighter()
-        {
-
-            GQHSMManager manager = GQHSMManager.Instance;
-
-            _theHSM[0] = manager.LoadFromXML("Air.xml");
-            // let's hook into the debugging
-            new MyLogger(_theHSM[0]);
-            _theHSM[1] = manager.LoadFromXML("Fuelmixture.xml");
-            new MyLogger(_theHSM[1]);
-            _theHSM[2] = manager.LoadFromXML("Valve.xml");
-            new MyLogger(_theHSM[2]);
-            _theHSM[3] = manager.LoadFromXML("Flint.xml");
-            new MyLogger(_theHSM[3]);
-            _theHSM[0].Init();
-            _theHSM[1].Init();
-            _theHSM[2].Init();
-            _theHSM[3].Init();
-
-        }
-
-        public void Run()
-        {
-            GQHSMManager manager = GQHSMManager.Instance;
-
-            // OK, run the state machine for a while.
-            while (true)
-            {
-                manager.Update();
-                ConsoleKeyInfo input;
-
-                if (Console.KeyAvailable)
-                {
-                    input = Console.ReadKey(true);
-                    switch (input.Key)
-                    {
-                        case System.ConsoleKey.S:
-                            {
-                                manager.SendPortAction("User", "Spin", null);
-                            }
-                            break;
-                        case System.ConsoleKey.P:
-                            {
-                                manager.SendPortAction("User", "Press", null);
-                            }
-                            break;
-                        case System.ConsoleKey.R:
-                            {
-                                manager.SendPortAction("User", "Release", null);
-                            }
-                            break;
-                        case System.ConsoleKey.OemPlus:
-                            {
-                                manager.SendPortAction("User", "IncreaseFlow", null);
-                            }
-                            break;
-
-                        case System.ConsoleKey.OemMinus:
-                            {
-                                manager.SendPortAction("User", "DecreaseFlow", null);
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-    }
-
     class TestZombieXML
     {
         private GQHSM _theHSM;
@@ -109,7 +39,7 @@ namespace TestXMLLoader
         private bool _isBehindDoor = false;
         private bool _pathToPlayer = false;
         private Random _randObj = new Random();
-        private MyLogger _mLogger;
+        private MyLogger _mLogger = new MyLogger();
 
         public TestZombieXML()
         {
@@ -118,14 +48,13 @@ namespace TestXMLLoader
             _theHSM = manager.LoadFromXML("ZombieAI.xml");
             // let's hook into the debugging
 
-            _mLogger = new MyLogger(_theHSM);
+            _mLogger.InitLogger(_theHSM);
 
-            _theHSM.RegisterGuardHandler(new GQHSMHandler(this, RandomRemain), "RandomRemain(5)");
-            _theHSM.RegisterGuardHandler(new GQHSMHandler(this, IsEndOfPath), "IsEndOfPath()");
-            _theHSM.RegisterGuardHandler(new GQHSMHandler(this, PathToPlayer), "PathToPlayer()");
-            //_theHSM.RegisterGuardHandler(new GQHSMHandler(this, IsBehindDoor), "ZombieAI", "IsBehindDoor()");
+            _theHSM.RegisterActionHandler(new GQHSMHandler(this, RandomRemain));
+            _theHSM.RegisterActionHandler(new GQHSMHandler(this, IsEndOfPath));
+            _theHSM.RegisterActionHandler(new GQHSMHandler(this, PathToPlayer));
+            _theHSM.RegisterActionHandler(new GQHSMHandler(this, OnClimbingOut));
 
-            _theHSM.RegisterActionHandler(new GQHSMHandler(this, OnClimbingOut), "OnClimbingOut", "ENTRY");
             _theHSM.Init();
 
 
@@ -133,29 +62,29 @@ namespace TestXMLLoader
 
         public object RandomRemain(object modulo)
         {
-
-            return (bool)((_randObj.Next() % 5) != 0);
+            return (bool)((_randObj.Next() % (int)modulo) != 0);
 
         }
 
-        public object IsEndOfPath(object dum)
+        public object IsEndOfPath()
         {
             return _endOfPath;
         }
 
-        public object PathToPlayer(object dum)
+        public object PathToPlayer()
         {
             return _pathToPlayer;
         }
 
-        public object IsBehindDoor(object dum)
+        public object IsBehindDoor()
         {
             return _isBehindDoor;
         }
 
-        public void OnClimbingOut()
+        public object OnClimbingOut()
         {
             _theHSM.SignalTransition("ClimbedOut", null);
+            return null;
         }
 
         public void Run()
@@ -243,73 +172,6 @@ namespace TestXMLLoader
 
     }
 
-    class MyLogger
-    {
-        private ILogger _logger;
-
-        public MyLogger(GQHSM theHsm)
-        {
-            _logger = theHsm.Logger;
-            theHsm.Instrument = true;
-            theHsm.StateChange += new EventHandler(hsm_StateChange);
-            theHsm.DispatchException += new DispatchExceptionHandler(hsm_DispatchException);
-            theHsm.UnhandledTransition += new DispatchUnhandledTransitionHandler(hsm_UnhandledTransition);
-
-        }
-
-        private void hsm_StateChange(object sender, EventArgs e)
-        {
-            LogStateEventArgs args = e as LogStateEventArgs;
-            GQHSM hsm = (GQHSM)sender;
-
-            switch (args.LogType)
-            {
-                case StateLogType.Init:
-                    {
-                        _logger.Debug("[{0}{1}] {2} to {3}", hsm.GetName(), args.LogType.ToString(), args.State, args.NextState.Name);
-                    }
-                    break;
-
-                case StateLogType.Entry:
-                    {
-                        _logger.Debug("[{0}{1}] {2}", hsm.GetName(), args.LogType.ToString(), args.State.Name);
-                    }
-                    break;
-
-                case StateLogType.Exit:
-                    {
-                        _logger.Debug("[{0}{1}] {2}", hsm.GetName(), args.LogType.ToString(), args.State.Name);
-                    }
-                    break;
-
-                case StateLogType.EventTransition:
-                    {
-                        _logger.Debug("[{0}{1}] {2} on {3} to {4} -> {5}", hsm.GetName(), args.LogType.ToString(), args.State.Name, args.EventName, args.NextState.Name, args.EventDescription);
-                    }
-                    break;
-
-                case StateLogType.Log:
-                    {
-                        _logger.Debug("[{0}{1}] {2}", hsm.GetName(), args.LogType.ToString(), args.LogText);
-                    }
-                    break;
-
-                default:
-                    throw new NotSupportedException("StateLogType." + args.LogType.ToString());
-            }
-        }
-
-        private void hsm_DispatchException(Exception ex, qf4net.IQHsm hsm, QState state, qf4net.IQEvent ev)
-        {
-            _logger.Debug("[{0}.{1}] Exception: on event {2}\n{3}", ((GQHSM)(hsm)).GetName(), state.Name, ev.ToString(), ex.ToString());
-        }
-
-        private void hsm_UnhandledTransition(qf4net.IQHsm hsm, QState state, qf4net.IQEvent ev)
-        {
-            _logger.Debug("[{0}.{1}] Unhandled Event: {2}", ((GQHSM)(hsm)).GetName(), state.Name, ev.ToString());
-        }
-    }
-
     class TestBookXML
     { 
         GQHSM _theHSM;
@@ -318,13 +180,8 @@ namespace TestXMLLoader
         {
             GQHSMManager manager = GQHSMManager.Instance;
 
-            _theHSM.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryEntry), "NotOwnedByLibrary", QSignals.Entry);
-            _theHSM.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryExit), "NotOwnedByLibrary", QSignals.Exit);
-            _theHSM.RegisterActionHandler(new GQHSMHandler(null, NotOwnedByLibraryEntry_OtherOwner), "NotOwnedByLibrary.OtherOwner", QSignals.Entry);
-            _theHSM.RegisterTransitionHandler(new GQHSMHandler(null, NotOwnedByLibrary_Bought), "NotOwnedByLibrary.Bought");
-            _theHSM.RegisterGuardHandler(new GQHSMHandler(null, IsLate), "OwnedByLibrary.OnLoan.IsLate()");
-
             _theHSM = manager.LoadFromXML("book.xml");
+            _theHSM.Init(this);
     	}
 
         public void Run()
@@ -368,19 +225,22 @@ namespace TestXMLLoader
 
         }
 
-        public void NotOwnedByLibraryEntry()
+        public object NotOwnedByLibraryEntry()
         {
             Console.WriteLine("NotOwnedByLibrary Entry Signal\n");
+            return null;
         }
 
-        public void NotOwnedByLibraryExit()
+        public object NotOwnedByLibraryExit()
         {
             Console.WriteLine("NotOwnedByLibrary Exit Signal\n");
+            return null;
         }
 
-        public void NotOwnedByLibraryEntry_OtherOwner()
+        public object NotOwnedByLibraryEntry_OtherOwner()
         {
             Console.WriteLine("NotOwnedByLibraryEntry_OtherOwner Entry Signal\n");
+            return null;
         }
 
         public object NotOwnedByLibrary_Bought(object data)
@@ -389,7 +249,7 @@ namespace TestXMLLoader
            return null;
         }
 
-        public object IsLate(object dummy)
+        public object IsLate()
         {
             return true;
         }
