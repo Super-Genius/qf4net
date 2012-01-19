@@ -9,26 +9,26 @@ using System.Collections.Generic;
 
 namespace TestXMLLoader
 {
+	class GameObject
+	{
+		public string Name;
+
+		public GameObject(string inName)
+		{
+			Name = inName;
+		}
+	}
+
 	class MainClass
 	{
 		public static void Main (string[] args)
 		{
-#if false
-            Lighter lighter;
-
-            lighter = new Lighter();
-			
-			//testZombieXML.WriteStateMachine("testzombie-write.xml");
-			lighter.Run();
-
-#else
             TestZombieXML testZombieXML;
 
             testZombieXML = new TestZombieXML();
 			
-			testZombieXML.WriteStateMachine("testzombie-write.xml");
+			//testZombieXML.WriteStateMachine("testzombie-write.xml");
 			testZombieXML.Run();
-#endif
         }
     }
 
@@ -41,6 +41,8 @@ namespace TestXMLLoader
         private Random _randObj = new Random();
         private MyLogger _mLogger = new MyLogger();
 
+		private GameObject playerWaitingFor;
+
         public TestZombieXML()
         {
             GQHSMManager manager = GQHSMManager.Instance;
@@ -50,46 +52,77 @@ namespace TestXMLLoader
 
             _mLogger.InitLogger(_theHSM);
 
-            _theHSM.RegisterActionHandler(new GQHSMHandler(this, RandomRemain));
-            _theHSM.RegisterActionHandler(new GQHSMHandler(this, IsEndOfPath));
-            _theHSM.RegisterActionHandler(new GQHSMHandler(this, PathToPlayer));
-            _theHSM.RegisterActionHandler(new GQHSMHandler(this, OnClimbingOut));
-
-            _theHSM.Init();
+            _theHSM.Init(this);
 
 
         }
 
-        public object RandomRemain(object modulo)
+        public bool RandomRemain(int modulo)
         {
-            return (bool)((_randObj.Next() % (int)modulo) != 0);
+            return (bool)((_randObj.Next() % modulo) != 0);
 
         }
 
-        public object IsEndOfPath()
+        public bool IsEndOfPath()
         {
             return _endOfPath;
         }
 
-        public object PathToPlayer()
+        public bool PathToPlayer()
         {
             return _pathToPlayer;
         }
 
-        public object IsBehindDoor()
+        public bool IsBehindDoor()
         {
             return _isBehindDoor;
         }
 
-        public object OnClimbingOut()
+        public void OnClimbingOut()
         {
-            _theHSM.SignalTransition("ClimbedOut", null);
-            return null;
+            _theHSM.SignalTransition("Trigger.ClimbedOut", null);
         }
+
+		public void OnCaughtPlayer(GameObject other)
+		{
+
+			Console.WriteLine("CaughtPlayer\n");
+			_theHSM.DoTransitionAsync("Idle");
+
+		}
+
+		public bool PlayerCatchable(GameObject other)
+		{
+			if (other != null)
+				Console.WriteLine("Testing Player Catchable\n");
+
+			return true;
+		}
+
+		public void SetWaitingForPlayer(GameObject other)
+		{
+			if (other != null)
+			{
+				Console.WriteLine("Setting Waiting for {0}\n", other.Name);
+			}
+
+			playerWaitingFor = other;
+		}
+
+		public void UnsetWaitingForPlayer()
+		{
+			if (playerWaitingFor != null)
+			{
+				Console.WriteLine("Unsetting Waiting for Player {0}\n", playerWaitingFor.Name);
+			}
+			playerWaitingFor = null;
+		}
+
 
         public void Run()
         {
             GQHSMManager manager = GQHSMManager.Instance;
+			bool bIsInPlayer = false;
 
             // OK, run the state machine for a while.
             while (true)
@@ -109,7 +142,7 @@ namespace TestXMLLoader
                             break;
                         case System.ConsoleKey.F:
                             {
-                                _theHSM.SignalTransition("Move.Horizontal", null);
+                                _theHSM.SignalTransition("Trigger.Falling", null);
                             }
                             break;
                         case System.ConsoleKey.G:
@@ -119,13 +152,17 @@ namespace TestXMLLoader
                             break;
                         case System.ConsoleKey.H:
                             {
-                                _theHSM.SignalTransition("Trigger.Hole.Enter", null);
+                                _theHSM.SignalTransition("Trigger.FallThroughEnter.Enter", null);
                             }
                             break;
 
                         case System.ConsoleKey.P:
                             {
-                                _theHSM.SignalTransition("Trigger.Player.Enter", null);
+								string st = "Trigger.Player.Enter";
+								if (bIsInPlayer)
+									st = "Trigger.Player.Exit";
+								bIsInPlayer = !bIsInPlayer;
+                                _theHSM.SignalTransition(st, new GameObject("Player"));
                             }
                             break;
 
@@ -138,6 +175,11 @@ namespace TestXMLLoader
                         case System.ConsoleKey.E:
                             {
                                 _endOfPath = !_endOfPath;
+								if (_endOfPath)
+								{
+									_theHSM.SignalTransition("EndOfPath", null);
+								}
+
                             }
                             break;
 
