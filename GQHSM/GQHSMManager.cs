@@ -18,7 +18,7 @@ namespace qf4net
         private IQEventManager m_EventManager;
         private QHsmLifeCycleManagerWithHsmEventsBaseAndEventManager m_LifeCycleManager;
 
-        private Dictionary<string, GQHSM> m_NameToHSM = new Dictionary<string, GQHSM>();
+        private MultiMap<string, GQHSM> m_NameToHSM = new MultiMap<string, GQHSM>();
 
         /// <summary>
         /// the destination compoment to a list of port links
@@ -152,10 +152,13 @@ namespace qf4net
 
         public void SendPortAction(string sourcePortName, string actionName, object data)
         {
-
-            foreach (GQHSM hsm in m_NameToHSM.Values)
+            foreach (string key in m_NameToHSM.Keys)
             {
-                hsm.SendPortAction(sourcePortName, actionName, data);
+				List<GQHSM> HSMs = m_NameToHSM[key];
+				foreach (GQHSM hsm in HSMs)
+				{
+                	hsm.SendPortAction(sourcePortName, actionName, data);
+				}
             }
         }
 
@@ -170,7 +173,6 @@ namespace qf4net
 
             List<GQHSMPortLink> portLinks = m_DestNameToPortLinks[destHsmName];
 
-            GQHSM sourceHsm;
             GQHSMPort srcPort;
 
             // lookup a portlink if there is one
@@ -178,33 +180,32 @@ namespace qf4net
             {
                 if (portLink.ToPortName == destPortName)
                 {
-                    if (m_NameToHSM.ContainsKey(portLink.Component[0].Name))
-                    {
-                        sourceHsm = m_NameToHSM[portLink.Component[0].Name];
-                        srcPort = sourceHsm.GetPort(portLink.FromPortName);
-                        if (srcPort != null)
-                        {
-                            retPorts.Add(srcPort);
-                        }
-                    }
+					List<GQHSM> HSMs = m_NameToHSM[portLink.Component[0].Name];
+					foreach (GQHSM hsm in HSMs)
+					{
+                    	srcPort = hsm.GetPort(portLink.FromPortName);
+                    	if (srcPort != null)
+                    	{
+                        	retPorts.Add(srcPort);
+                    	}
+					}
                 }
             }
 
             // if no port links, then try to map destination hsm name to port in the source HSM
             if (portLinks.Count == 0)
             {
-                // treat the portName == Component Name
-                if (m_NameToHSM.ContainsKey(destPortName))
-                {
-                    sourceHsm = m_NameToHSM[destPortName];
+				List<GQHSM> HSMs = m_NameToHSM[destPortName];
+				foreach (GQHSM hsm in HSMs)
+				{
                     // and the port equals the component name
                     // this maps Air.FuelMixture to FuelMixture.Air port names
-                    srcPort = sourceHsm.GetPort(destHsmName);
+                    srcPort = hsm.GetPort(destHsmName);
                     if (srcPort != null)
                     {
                         retPorts.Add(srcPort);
                     }
-                }
+				}
             }
 
             return retPorts;
@@ -219,7 +220,18 @@ namespace qf4net
         public void UnregisterHsm(GQHSM hsm)
         {
             m_LifeCycleManager.UnregisterHsm((ILQHsm)hsm);
-            m_NameToHSM.Remove(hsm.GetName());
+			List<GQHSM> HSMs = m_NameToHSM[hsm.GetName()];
+			List<GQHSM> newHSMS = new List<GQHSM>();
+			foreach (GQHSM remHSM in HSMs)
+			{
+				if (remHSM.HandlerClass != hsm.HandlerClass)
+				{
+					newHSMS.Add(remHSM);
+				}
+			}
+			
+			HSMs = newHSMS;
+			
         }
 
         /// <summary>

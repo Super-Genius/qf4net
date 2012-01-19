@@ -56,15 +56,45 @@ namespace qf4net
             }
         }
 
+		private string GetParameterString(ParameterInfo[] paramInfos)
+		{
+            string retString = "";
+            bool first = true;
+
+			foreach (ParameterInfo paramInfo in paramInfos)
+			{
+                if (!first)
+                {
+                    retString += ",";
+                }
+                first = false;
+                retString += paramInfo.ParameterType.ToString();
+            }
+
+            return retString;				
+		}
+
         public object InvokeActionHandler()
         {
             if (_actionHandler != null)
             {
                 object[] sendParams = null;
-                if (_params != null)
-                {
-                    sendParams = _params.ToArray();
-                }
+				if (_params != null)
+				{
+					sendParams = _params.ToArray();
+					int sendLength = 0;
+					if (sendParams != null)
+					{
+						sendLength = sendParams.Length;
+					}
+
+					if (sendLength != _actionHandler.GetParameters().Length)
+					{
+						_parentHSM.Logger.Error("Parameter Count Mismatch: \n{0}({1})\ndoesn't match\n{2}({3})", Name, _params.GetParametersString(),
+							_actionHandler.Name, GetParameterString(_actionHandler.GetParameters()));
+						return null;
+					}
+				}
                 return _actionHandler.Invoke(_parentHSM.HandlerClass, sendParams);
             }
             else

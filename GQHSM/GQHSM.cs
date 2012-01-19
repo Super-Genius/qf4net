@@ -205,7 +205,8 @@ namespace qf4net
 
         public GQHSM(string fileName)
         {
-            SetName(fileName);
+			string Name = Path.GetFileNameWithoutExtension(fileName);
+            SetName(Name);
         }
 
         ~GQHSM()
@@ -455,35 +456,36 @@ namespace qf4net
         public bool GetGuardedTransition(string signalName, GQHSMParameters Params, ref GQHSMTransition transition)
         {
             List<GQHSMTransition> guardTansitions;
-            GQHSMTransition foundTransition = null;
-            bool retValue = false;
-
 
             guardTansitions = _nameToGuardedTransitionMultiMap[signalName];
 
+            // retrieve unguarded transition if any
+            _nameToTransitionMap.TryGetValue(signalName, out transition);
+			if ((guardTansitions.Count == 0) && (transition == null))
+			{
+				return false;
+			}
+
             foreach (GQHSMTransition gTransition in guardTansitions)
             {
-                // we had a guard condition and handled the transition but guard may fail
 
                 // call methods directly if any.
                 if (gTransition.InvokeGuards())
                 {
-                    return true;
+					transition = gTransition;
+					break;
                 }
 
-                retValue = true;
                 if (CallGuardHandler(gTransition.GuardCondition, Params))
                 {
                     transition = gTransition;
-                    return true;
+					break;
                 }
             }
 
-            // retrieve unguarded transition if any
-            _nameToTransitionMap.TryGetValue(signalName, out foundTransition);
-            transition = foundTransition;
 
-            return retValue;
+			return true;
+
         }
 
         public GQHSMTransition GetTransition(string transistionName)

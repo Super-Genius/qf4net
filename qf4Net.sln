@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qf4net", "qf4net.csproj", "{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestXMLLoader", "TestXMLLoader\TestXMLLoader.csproj", "{60C8BD14-B90B-475A-933E-6FB594A3FFE3}"
@@ -17,16 +17,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|x86.ActiveCfg = Release|Any CPU
 		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -38,18 +28,27 @@ Global
 		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{60C8BD14-B90B-475A-933E-6FB594A3FFE3}.Release|x86.ActiveCfg = Release|Any CPU
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Debug|Any CPU.Build.0 = Debug|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Debug|x86.ActiveCfg = Debug|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Debug|x86.Build.0 = Debug|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Release|Any CPU.ActiveCfg = Release|x86
+		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Release|Any CPU.Build.0 = Release|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Release|Mixed Platforms.Build.0 = Release|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Release|x86.ActiveCfg = Release|x86
 		{C0FFD143-5ACC-4679-AD73-050EFFDDCE9B}.Release|x86.Build.0 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{FF4A2CA2-7B41-433A-97DF-E66AF0187EA4}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = TestXMLLoader\TestXMLLoader.csproj
@@ -57,5 +56,8 @@ Global
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = None
 		$1.ResourceNamePolicy = FileFormatDefault
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

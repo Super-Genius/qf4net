@@ -14,7 +14,7 @@ public class MultiMap<Key, V>
 
         List<V> list;
         // if there is already a list with key then just add to it
-        if (this._dictionary.TryGetValue(key, out list))
+        if (_dictionary.TryGetValue(key, out list))
         {
             // Add the value to the list
             list.Add(value);
@@ -26,16 +26,21 @@ public class MultiMap<Key, V>
             // and add the first value
             list.Add(value);
             // save off list into dictionary
-            this._dictionary[key] = list;
+            _dictionary[key] = list;
         }
     }
+
+	public void Remove(Key key)
+	{
+		_dictionary.Remove(key);
+	}
 
     // Expose the keys as Enumerable
     public IEnumerable<Key> Keys
     {
         get
         {
-            return this._dictionary.Keys;
+            return _dictionary.Keys;
         }
     }
 
@@ -45,7 +50,7 @@ public class MultiMap<Key, V>
         get
         {
             List<V> list;
-            if (this._dictionary.TryGetValue(key, out list))
+            if (_dictionary.TryGetValue(key, out list))
             {
                 return list;
             }

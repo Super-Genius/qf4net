@@ -159,11 +159,11 @@ namespace qf4net
                     return null;
                 case QSignals.Exit:
                     {
-                        if (_parentHSM.Instrument && !DoNotInstrument)
+						_parentHSM.ClearTimeOuts(Id);
+						if (_parentHSM.Instrument && !DoNotInstrument)
                             _parentHSM.LogStateEvent(StateLogType.Exit, _stateHandler);
                         if (_exitActions != null)
                             _exitActions.InvokeActionHandlers();
-                        _parentHSM.ClearTimeOuts(Id);
                     }
                     return null;
                 case QSignals.Empty:
@@ -172,14 +172,21 @@ namespace qf4net
                     break;
                 default:
                     {
-						GQHSMParameters evParams = (GQHSMParameters)ev.QData;
+						GQHSMParameters evParams;
 						if (ev.QData is GQHSMParameters)
-                        {
-							if (evParams[0] != null)
-							{
-								manager.Globals["ev"].Copy(evParams[0]);
-							}
-                        }
+						{
+							evParams = (GQHSMParameters)ev.QData;
+						}
+						else
+						{
+							evParams = new GQHSMParameters(ev.QData);
+						}
+
+						if (evParams[0] != null)
+						{
+							manager.Globals["ev"].Copy(evParams[0]);
+						}
+
 
                         if (_parentHSM.StateTransitionInternal(_fullName, evParams, ev.QSignal))
                         {
