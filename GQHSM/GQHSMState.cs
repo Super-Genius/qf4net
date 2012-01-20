@@ -145,6 +145,7 @@ namespace qf4net
                             _parentHSM.InitState(childStartState.GetStateHandler());
                             return null;
                         }
+						_parentHSM.ResetTimeOuts(Id);
                     }
                     break;
 

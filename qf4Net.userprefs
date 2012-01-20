@@ -1,7 +1,8 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="GQHSM\GQHSMStateMachine.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TestXMLLoader\Main.cs">
     <Files>
+      <File FileName="..\Unity\DefaultResources\Decal.shader" Line="26" Column="1" />
       <File FileName="..\test.cs" Line="618" Column="28" />
       <File FileName="GQHSM\GQHSMState.cs" Line="1" Column="1" />
       <File FileName="GQHSM\GQHSMManager.cs" Line="1" Column="1" />
@@ -13,8 +14,26 @@
       <File FileName="GQHSM\GQHSMTimeout.cs" Line="1" Column="1" />
       <File FileName="GQHSM\GQHSMGlyph.cs" Line="1" Column="1" />
       <File FileName="GQHSM\GQHSMStateMachine.cs" Line="1" Column="1" />
-      <File FileName="TestXMLLoader\Main.cs" Line="1" Column="1" />
+      <File FileName="TestXMLLoader\Main.cs" Line="211" Column="34" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="TestXMLLoader" expanded="True">
+            <Node name="Main.cs" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State>
+          <Value>movementController.m_phsyicsBounce.sqrMagnitude</Value>
+          <Value>this.m_targetDirection</Value>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>

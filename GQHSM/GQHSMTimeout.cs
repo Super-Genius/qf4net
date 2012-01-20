@@ -107,7 +107,26 @@ namespace qf4net
             _callType = GQHSMCallType.TIMEOUT_DATETIME_TYPE;
         }
 
-        public void SetTimeOut(LQHsm sm)
+		public void ResetTimeOut(LQHsm sm)
+		{
+			switch (_callType)
+			{
+				case GQHSMCallType.TIMEOUT_TIMESPAN:
+					if (Duration.TotalMilliseconds == 0.0)
+					{
+						sm.SetTimeOut(_name, Duration, _event);
+					}
+					break;
+				case GQHSMCallType.TIMEOUT_TIMESPAN_TYPE:
+					if (Duration.TotalMilliseconds == 0.0)
+					{
+						sm.SetTimeOut(_name, Duration, _event, _type);
+					}
+					break;
+			}
+		}
+
+		public void SetTimeOut(LQHsm sm)
         {
             switch (_callType)
             {

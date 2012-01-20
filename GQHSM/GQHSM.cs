@@ -551,6 +551,18 @@ namespace qf4net
 			_nameToTimeOutMap.Add(stateGuid, to);
         }
 
+		public void ResetTimeOuts(Guid stateGuid)
+		{
+			List<GQHSMTimeOut> timeOuts;
+
+			timeOuts = _nameToTimeOutMap[stateGuid];
+
+			foreach (GQHSMTimeOut timeOut in timeOuts)
+			{
+				timeOut.ResetTimeOut(this);
+			}
+		}
+
         public void SetTimeOuts(Guid stateGuid)
         {
 			List<GQHSMTimeOut> timeOuts;

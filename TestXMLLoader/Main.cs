@@ -75,6 +75,7 @@ namespace TestXMLLoader
 
         public bool IsBehindDoor()
         {
+			Console.WriteLine("Checking behind door\n");
             return _isBehindDoor;
         }
 
@@ -118,6 +119,11 @@ namespace TestXMLLoader
 			playerWaitingFor = null;
 		}
 
+
+		public void OnIdle()
+		{
+			Console.WriteLine("OnIdle Entered\n");
+		}
 
         public void Run()
         {
@@ -200,6 +206,11 @@ namespace TestXMLLoader
                                 _theHSM.SignalTransition("DoorOpened", null);
                             }
                             break;
+						case System.ConsoleKey.R:
+							{
+								_theHSM.DoTransitionAsync("Idle");
+							}
+							break;
                     }
                 }
             }
